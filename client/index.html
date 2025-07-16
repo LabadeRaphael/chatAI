@@ -1,6 +1,6 @@
 <!-- client/register.html -->
 
-<!-- <!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
@@ -20,61 +20,5 @@
     </form>
   </div>
   <script src="auth.js"></script>
-</body>
-</html> -->
-
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>AI Help Desk Chat</title>
-  <link rel="stylesheet" href="style.css" />
-</head>
-<body>
-  <div class="app-container">
-    <aside class="sidebar" id="sidebar">
-      <div class="sidebar-header">
-        <img src="logo.png" alt="AI Help Desk Logo" class="sidebar-logo" />
-      </div>
-      <div class="sidebar-content">
-        <input type="text" id="search" placeholder="Search" class="search-input" />
-        <button id="newChatBtn">+ New Chat</button>
-        <button id="chatHistoryBtn">Chat History</button>
-        <button id="logoutBtn">Logout</button>
-      </div>
-    </aside>
-    <div class="main-content">
-      <nav class="navbar">
-        <button id="sidebarToggle" class="toggle-btn">☰</button>
-        <h2>AI Help Desk</h2>
-        <div class="nav-icons">
-          <span class="icon">⚙️</span>
-          <span class="icon">⬜</span>
-          <span class="icon">👤</span>
-        </div>
-      </nav>
-      <div id="chat-box" class="chat-box"></div>
-      <div class="chat-input-container">
-        <form id="chat-form" class="chat-form">
-          <input type="text" id="user-input" placeholder="Type a message..." required />
-          <button type="submit">▶</button>
-        </form>
-      </div>
-    </div>
-  </div>
-
-  <!-- Logout Confirmation Modal -->
-  <div id="logoutModal" class="modal">
-    <div class="modal-content">
-      <p>Are you sure you want to logout?</p>
-      <div class="modal-buttons">
-        <button id="confirmLogout">Yes, Logout</button>
-        <button id="cancelLogout">Cancel</button>
-      </div>
-    </div>
-  </div>
-
-  <script src="script.js"></script>
 </body>
 </html>
