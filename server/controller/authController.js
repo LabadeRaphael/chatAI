@@ -26,9 +26,9 @@ exports.registerUser = async (req, res) => {
       secure: process.env.NODE_ENV === "development"? false : true, // set to true in production with https
       maxAge: 86400000
     });
-    res.status(201).json({ message: 'User registered', user: { id: user._id, name: user.name, email: user.email } });
+    return res.status(201).json({ message: 'User registered', user: { id: user._id, name: user.name, email: user.email } });
   } catch (err) {
-    res.status(500).json({ message: 'Registration failed', error: err.message });
+    return res.status(500).json({ message: 'Registration failed', error: err.message });
   }
 };
 
@@ -48,41 +48,52 @@ exports.loginUser = async (req, res) => {
       secure: process.env.NODE_ENV === "development" ? false : true,
       maxAge: 86400000
     });
-    res.json({ message: 'Login successful', user: { id: user._id, name: user.name, email: user.email } });
+    return res.json({ message: 'Login successful', user: { id: user._id, name: user.name, email: user.email } });
   } catch (err) {
-    res.status(500).json({ message: 'Login failed', error: err.message });
+   return res.status(500).json({ message: 'Login failed', error: err.message });
   }
 };
 
 // Logout
 exports.logoutUser = (req, res) => {
   res.clearCookie('token');
-  res.json({ message: 'Logged out' });
+ return res.json({ message: 'Logged out' });
 };
 exports.userDetails =(req,res)=>{
-  res.json(req.user);
+  if(!req.user){
+    return res.status(401).json({message:'Not authorized, invalid token'});
+  }else{
+    return res.status(200).json(req.user);
+  }
 }
 exports.searchMessage = async (req,res)=>{
-   const query = req.query.q; 
-    if (!query) {
+   const query = String(req.query.q);
+   const userId = String(req.user.id)
+   console.log(query);
+   console.log(userId);
+   if(!userId){
+   return res.status(401).json({ message: 'Not authorized, invalid token' });
+   }
+    else if (!query) {
       return res.status(400).json({ message: 'No search query provided' });
     }
+    
     try {
       
       const messages = await Message.find({
-        $or: [
-          { name: { $regex: query, $options: 'i' } }, // case-insensitive search
-          { email: { $regex: query, $options: 'i' } },
-        ],
+       
+          user:userId, // restrict to logged-in user's messages
+          content: { $regex: query, $options: 'i' } , // case-insensitive search
+     
       });
   
       console.log(messages);
-      res.json({message: 'Matched data found',});
-      if (!messages) {
-         res.json({message: 'No matched data found',});
+      if (messages?.length === 0 || messages == []) {
+        return res.status(400).json({message: 'No matched data found',});
       }
-    } catch (error) {
+      return res.status(200).json({message: 'Matched data found', searchData:messages});
+    } catch (err) {
        console.error('Search Error:', err.message);
-    res.status(500).json({ message: 'Server error' });
+      return res.status(500).json({ message: 'Server error' });
     }
 }
