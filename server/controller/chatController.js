@@ -2,6 +2,7 @@ require('dotenv').config();
 const Message = require('../models/Message');
 const Chat = require('../models/Chat');
 const OpenAI = require('openai');
+const { ChatSession } = require('@google/generative-ai');
 
 const openai = new OpenAI({
   apiKey: process.env.TOGETHER_API_KEY,
@@ -73,6 +74,30 @@ exports.getChatTitles = async (req, res) => {
     res.status(200).json({ titles: chats });
   } catch (err) {
     res.status(500).json({ error: 'Failed to fetch chat titles' });
+  }
+};
+exports.getChatSession = async (req, res) => {
+  const userId = req.user.id;
+  const id = req.params.id;
+  console.log(id)
+  try {
+    const chats = await Chat.findOne({ user: userId, _id: id });
+    console.log(chats);
+    
+    res.status(200).json({ chatSession: chats });
+  } catch (err) {
+    res.status(500).json({ error: 'Failed to fetch chat titles' });
+  }
+};
+exports.delChatSession = async (req, res) => {
+  const id = req.params.id;
+  const userId = req.user.id;
+
+  try {
+    const response = await Chat.deleteOne({ _id: id, user: userId });
+    res.status(200).json({ message:"successful", response});
+  } catch (err) {
+    res.status(500).json({ error: 'Failed to delete chat' });
   }
 };
 
