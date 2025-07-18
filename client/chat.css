@@ -5,6 +5,36 @@
   --light-border: #e6dcc7;
 }
 
+  .search-bar {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 1rem;
+    position: sticky;
+    top: 0;
+    background: #fdfaf5;
+    padding-bottom: 1rem;
+    z-index: 2;
+  }
+
+  .search-bar input {
+    flex: 1;
+    padding: 10px;
+    border: 2px solid #2f1b10;
+    border-radius: 8px;
+    background: #fffaf2;
+    color: #2f1b10;
+    font-size: 1rem;
+  }
+
+  .search-bar button {
+    padding: 10px 16px;
+    background: #2f1b10;
+    color: #fdfaf5;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: bold;
+  }
 body {
   font-family: 'Segoe UI', sans-serif;
   margin: 0;
@@ -18,7 +48,7 @@ body {
 .modal {
   display: none;
   position: fixed;
-  z-index: 100;
+  z-index: 100; /* Below toggle on small screens */
   left: 0;
   top: 0;
   width: 100%;
@@ -50,12 +80,12 @@ body {
   font-weight: bold;
 }
 
-#confirmLogout {
+#confirmLogout, #confirmDel {
   background-color: rgb(255, 194, 68);
   color: #120802;
 }
 
-#cancelLogout {
+#cancelLogout,#cancelDel {
   background-color: #120802;
   color: white;
 }
@@ -73,17 +103,22 @@ body {
   width: 210px;
   background-color: var(--chocolate);
   color: var(--cream);
-  padding: 1rem;
+  padding: 1rem 0.5rem;
   display: flex;
   flex-direction: column;
-  transition: transform 0.3s ease;
+  padding-top: 35px;
+  transition: transform 0.3s ease, width 0.3s ease;
   position: fixed;
   height: 100%;
   z-index: 10;
 }
 
 .sidebar.closed {
-  transform: translateX(-60px); /* Partial close on large screens */
+  width: 60px; /* Reduced width to show only icons */
+  transform: translateX(0); /* No translation, just width change */
+padding: 1rem 0.5rem;
+
+  padding-top: 35px;
 }
 
 .sidebar-header {
@@ -93,7 +128,7 @@ body {
 
 .sidebar-logo {
   width: 100%;
-  max-width: 70px;
+  max-width: 50px; /* Reduced for better fit */
   border-radius: 100%;
   display: block;
   margin: 0 auto 1rem;
@@ -102,16 +137,18 @@ body {
 .sidebar-content {
   display: flex;
   flex-direction: column;
-  gap: 0.5rem;
+  gap: 1rem;
+  width: 100%;
+  align-items: center;
 }
 
 .search-container {
   display: flex;
   gap: 0rem;
+  width: 100%;
 }
 
 .search-input {
-    width: 20px;
   padding: 0.5rem;
   border: 1px solid var(--light-border);
   border-top-left-radius: 6px;
@@ -119,6 +156,8 @@ body {
   background-color: var(--cream);
   color: var(--chocolate);
   flex: 1;
+  margin-left: 0.2rem;
+  width: 100%; /* Ensure it takes available space */
 }
 
 .search-btn {
@@ -126,7 +165,7 @@ body {
   color: var(--chocolate);
   border: none;
   padding: 0.5rem;
-    border-top-right-radius: 6px;
+  border-top-right-radius: 6px;
   border-bottom-right-radius: 6px;
   cursor: pointer;
   width: 2rem;
@@ -142,21 +181,51 @@ body {
   padding: 0.5rem;
   border-radius: 6px;
   cursor: pointer;
-  text-align: left;
+  text-align: center;
   display: flex;
   align-items: center;
   gap: 0.5rem;
-  justify-content: space-between;
+  justify-content: center;
   width: 100%;
+  transition: all 0.3s ease;
+}
+.chat-history {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  width: 100%;
+  padding: 0.5rem;
+}
+.message-item {
+  background-color: var(--cream);
+  color: var(--chocolate);
+  border: none;
+  padding: 0.5rem;
+  border-radius: 6px;
+  cursor: pointer;
+  display: flex;
+  justify-content: space-between;
+  transition: all 0.3s ease;
+}
+
+
+.message-options {
+  font-weight: bold;
+  font-size: 1.2rem;
+  /* color: var(--chocolate); */
+}
+.sidebar-item i {
+  font-size: 1.2rem;
 }
 
 .sidebar.closed .sidebar-item {
   padding: 0.5rem;
   justify-content: center;
+  width: 100%;
 }
 
 .sidebar.closed .sidebar-item span {
-  display: none;
+  display: none; /* Hide text when closed */
 }
 
 .sidebar .sidebar-item i {
@@ -164,29 +233,71 @@ body {
 }
 
 .sidebar.closed .tooltip {
-  display: block;
+  display: none; /* Hide tooltip by default */
+}
+
+.sidebar.closed .sidebar-item:hover .tooltip {
+  display: block; /* Show tooltip on hover when closed */
+}
+
+.tooltip {
+  display: none;
   position: absolute;
   background-color: var(--chocolate);
   color: var(--cream);
   padding: 0.3rem 0.6rem;
   border-radius: 4px;
   font-size: 0.8rem;
-  top: 50%;
+  left: 60px; /* Position to the right of the icon */
   transform: translateY(-50%);
   white-space: nowrap;
+  z-index: 12;
+}
+/* tooltip for delete */
+
+.message-options {
+  cursor: pointer;
+  padding-left: 8px;
 }
 
-.sidebar-item:hover .tooltip {
-  display: block;
+.deletetooltip {
+  position: absolute;
+  background: white;
+  border: 1px solid #ccc;
+  z-index: 10;
+  padding: 5px;
+  border-radius: 4px;
 }
 
-.tooltip {
-  display: none;
+.tooltip-item {
+  cursor: pointer;
+  padding: 4px 8px;
 }
+
+.confirm-box {
+  background: #fff3cd;
+  padding: 10px;
+  border: 1px solid #f5c6cb;
+  margin-top: 5px;
+  border-radius: 4px;
+}
+
+.confirm-box button {
+  margin: 0 5px;
+}
+
+
+
+
+
+
+
+
+
 
 .main-content {
   flex: 1;
-  margin-left: 250px;
+  margin-left: 210px;
   display: flex;
   flex-direction: column;
   background-color: var(--cream);
@@ -194,8 +305,8 @@ body {
   transition: margin-left 0.3s ease;
 }
 
-.main-content .navbar {
-  margin-left: 0;
+.main-content.closed {
+  margin-left: 60px; /* Adjust for closed sidebar */
 }
 
 .navbar {
@@ -213,18 +324,14 @@ body {
   transition: margin-left 0.3s ease;
 }
 
-.main-content.closed .navbar {
-    /* sidbar width */
-  margin-left: -60px;
-}
-
 .toggle-btn {
   background: none;
   border: none;
   font-size: 1.5rem;
   color: var(--chocolate);
   cursor: pointer;
-  z-index: 11;
+  z-index: 11; /* Above modal */
+  position: relative;
 }
 
 .nav-icons .icon {
@@ -249,13 +356,15 @@ body {
 }
 
 .chat-box .bot {
-  background-color: #fffaf0;
-  align-self: flex-start;
+    align-self: flex-start;
+    background-color: var(--chocolate);
+    color: var(--cream);
+    margin-left: 0.2rem;
 }
 
 .chat-box .user {
-  background-color: var(--chocolate);
-  color: var(--cream);
+    background-color: #F9F1DF;
+      border: 1px solid var(--chocolate);
   align-self: flex-end;
 }
 
@@ -271,11 +380,12 @@ body {
   display: flex;
   gap: 0.5rem;
   align-items: center;
+  margin-left: 0.2rem;
 }
 
 .chat-form input {
   flex: 1;
-  padding: 2rem;
+  padding: 1rem;
   border: 1px solid var(--light-border);
   border-radius: 6px;
   background-color: white;
@@ -294,10 +404,69 @@ body {
   align-items: center;
   justify-content: center;
 }
+/* search content */
+  .search-result {
+    max-height: 70vh;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    padding-right: 5px;
+  }
+  .message-box {
+    border-left: 5px solid #c57f28; /* golden chocolate */
+    background: #fff8ec;
+    padding: 12px 16px;
+    border-radius: 10px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+    transition: background 0.3s;
+    margin-left: 0.2rem;
+  }
+
+  .message-box:hover {
+    background: #fdf1d6;
+  }
+
+  .message-user {
+    font-weight: bold;
+    margin-bottom: 4px;
+    color: #2f1b10;
+    margin-left: 0.2rem;
+  }
+
+  .message-content {
+    font-size: 0.95rem;
+    color: #3b2414;
+    margin-left: 0.2rem;
+  }
+  /* message displayer */
+  .message {
+  padding: 1rem 1.5rem;
+  margin: 1rem auto;
+  border-left: 5px solid;
+  border-radius: 8px;
+  max-width: 600px;
+  font-weight: 500;
+  font-family: 'Segoe UI', sans-serif;
+}
+
+.message.success {
+  background-color: #edf7ed;
+  color: #1e4620;
+  border-color: #2e7d32;
+}
+
+.message.error {
+  background-color: #fdecea;
+  color: #611a15;
+  border-color: #d32f2f;
+}
 
 @media (max-width: 768px) {
   .sidebar {
     transform: translateX(-250px);
+    width: 210px; /* Full width when open */
+    margin-top: 110px;
   }
   .sidebar.open {
     transform: translateX(0);
@@ -312,12 +481,18 @@ body {
     justify-content: space-between;
   }
   .modal {
-    z-index: 101; /* Above toggle */
+    z-index: 99; /* Below toggle */
+  }
+  .deleteModal {
+    z-index: 99; /* Below toggle */
   }
   .sidebar.closed {
     transform: translateX(-250px); /* Full close on small screens */
   }
   .main-content.closed .navbar {
     margin-left: 0;
+  }
+  .toggle-btn {
+    z-index: 101; /* Ensure toggle is above modal */
   }
 }
