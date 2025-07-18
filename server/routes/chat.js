@@ -6,5 +6,7 @@ const authMiddleware = require('../middleware/authMiddleware');
 
 // Protected chat route
 router.post('/', authMiddleware, chatController.sendMessage);
+router.get('/history', authMiddleware, chatController.getMessages);
+router.get('/title', authMiddleware, chatController.getChatTitles);
 
 module.exports = router;
