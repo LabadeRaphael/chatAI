@@ -111,8 +111,10 @@ body {
   position: fixed;
   height: 100%;
   z-index: 10;
+  scroll-behavior: smooth;
+  overflow-y: scroll;
+  
 }
-
 .sidebar.closed {
   width: 60px; /* Reduced width to show only icons */
   transform: translateX(0); /* No translation, just width change */
@@ -125,6 +127,17 @@ padding: 1rem 0.5rem;
   margin-bottom: 1rem;
   text-align: center;
 }
+.newChatCon{
+  margin: 0 25% 0 25%;
+     background-color: var(--chocolate);
+    color: var(--cream);
+     max-width: 50%;
+  padding: 0.5rem 1rem;
+  border-radius: 12px;
+}
+.newChat{
+  text-align: center;
+}
 
 .sidebar-logo {
   width: 100%;
@@ -132,6 +145,13 @@ padding: 1rem 0.5rem;
   border-radius: 100%;
   display: block;
   margin: 0 auto 1rem;
+}
+.userLogo{
+  border-radius: 100%;
+  padding: 0.5rem;
+  background-color: var(--chocolate);
+  color: var(--cream);
+  font-weight: bolder;
 }
 
 .sidebar-content {
@@ -468,6 +488,14 @@ padding: 1rem 0.5rem;
     width: 210px; /* Full width when open */
     margin-top: 110px;
   }
+  .newChatCon{
+  margin: 0 10% 0 10%;
+     background-color: var(--chocolate);
+    color: var(--cream);
+     max-width: 100%;
+  border-radius: 12px;
+}
+   
   .sidebar.open {
     transform: translateX(0);
   }

@@ -22,8 +22,12 @@ async function getUserDetails() {
   }
 }
 document.addEventListener('DOMContentLoaded', async () => {
+  const userLogo = document.getElementById('userLogo');
   let userDetails = await getUserDetails()
   const renderedChatIds = new Set();
+  const userName = userDetails.name; // e.g., "labade"
+  const initials = userName.slice(0, 2).toUpperCase(); // "la" → "LA"
+  userLogo.innerText = initials;
   console.log(userDetails.name);
   const sidebar = document.getElementById('sidebar');
   const sidebarToggle = document.getElementById('sidebarToggle');
@@ -47,7 +51,15 @@ document.addEventListener('DOMContentLoaded', async () => {
   const mainContent = document.querySelector('.main-content');
   const sidebarItems = document.querySelectorAll('.sidebar-item');
   const messageBox = document.getElementById('messageBox')
-  chatBox.innerHTML = `Hey, ${userDetails.name}. Ready to dive in?`
+
+  const newMsg = document.createElement('div');
+  const newMsgCon = document.createElement('div');
+  newMsg.classList.add('newChat');
+  newMsgCon.classList.add('newChatCon');
+  const message = `Hey ${userName.charAt(0).toUpperCase() + userName.slice(1).toLowerCase()}.What is on your agenda today?`
+  newMsg.innerHTML = message;
+  newMsgCon.appendChild(newMsg)
+  chatBox.appendChild(newMsgCon);
   let isSidebarOpen = true;
   let newChat = true;
 
@@ -87,7 +99,6 @@ document.addEventListener('DOMContentLoaded', async () => {
     const shouldClose = !sidebar.classList.contains('closed');
     sidebar.classList.toggle('closed');
     mainContent.classList.toggle('closed');
-
     if (window.innerWidth <= 768) {
       sidebar.classList.toggle('open');
       isSidebarOpen = sidebar.classList.contains('open');
@@ -123,7 +134,15 @@ document.addEventListener('DOMContentLoaded', async () => {
 
   newChatBtn.addEventListener('click', () => {
     newChat = true;
-    chatBox.innerHTML = `Hello ${userDetails.name}! How can i assist u today;`
+    chatBox.innerHTML = ""
+    const newMsg = document.createElement('div');
+    const newMsgCon = document.createElement('div');
+    newMsg.classList.add('newChat');
+    newMsgCon.classList.add('newChatCon');
+    const message = `Hello ${userName.charAt(0).toUpperCase() + userName.slice(1).toLowerCase()}! How can i assist u today?`
+    newMsg.innerHTML = message;
+    newMsgCon.appendChild(newMsg)
+    chatBox.appendChild(newMsgCon);
   });
 
 
@@ -203,8 +222,35 @@ document.addEventListener('DOMContentLoaded', async () => {
     }, 3000);
 
   });
-  chatHistoryBtn.addEventListener('click', () => {
-    alert('Chat History feature coming soon!');
+  chatHistoryBtn.addEventListener('click', async () => {
+    // await fetchHistory()
+    chatBox.innerHTML = ""
+    const localData = localStorage.getItem("chatHistory");
+
+    if (localData) {
+      chatMessages = JSON.parse(localData);
+      chatMessages.forEach(item => appendMessage(item.sender, item.message));
+    } else {
+      // fallback to DB
+      try {
+        // chatBox.innerHTML=""
+        const res = await fetch(`${URL}/api/chat/history`, {
+          method: 'GET',
+          credentials: 'include'
+        });
+        const data = await res.json();
+        console.log(data);
+
+        if (data?.history) {
+          chatMessages = data.history;
+          localStorage.setItem("chatHistory", JSON.stringify(chatMessages));
+          chatMessages.forEach(item => appendMessage(item.sender, item.content));
+          chatHistory.appendChild(item.sender);
+        }
+      } catch (err) {
+        console.log("Error fetching chat history from DB", err);
+      }
+    }
   });
 
   if (logoutBtn && modal) {
@@ -256,10 +302,10 @@ document.addEventListener('DOMContentLoaded', async () => {
           appendMessage('bot', data.reply);
           if (isNewChat) {
             newChat = false; // Reset newChat flag
-            let see= await fetchChatTitle(); // Fetch updated titles from server
+            let see = await fetchChatTitle(); // Fetch updated titles from server
             console.log(see);
           }
-          
+
         }
       } catch (err) {
         appendMessage('bot', 'Error connecting to server.');
@@ -270,17 +316,17 @@ document.addEventListener('DOMContentLoaded', async () => {
   async function renderChatTitle(message, id) {
     const rawTitles = localStorage.getItem("chatTitles");
     let currentTitles = rawTitles ? JSON.parse(rawTitles) : [];
-      if (renderedChatIds.has(id)) {
-    console.log(`Chat title already rendered for id: ${id}`);
-    return;
-  }
-  
+    if (renderedChatIds.has(id)) {
+      console.log(`Chat title already rendered for id: ${id}`);
+      return;
+    }
+
     renderedChatIds.add(id); // Mark this chat ID as rendered
 
     currentTitles.push({ message, _id: id });
     localStorage.setItem("chatTitles", JSON.stringify(currentTitles));
     console.log("create chatTitle in render");
-    
+
     const msgDiv = document.createElement('div');
     msgDiv.innerHTML = message;
 
@@ -294,7 +340,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     messageItem.appendChild(dotSpan);
 
     chatHistory.appendChild(messageItem);
-
+    // sidebarItems.scrollTop = sidebarItems.scrollHeight;
     msgDiv.addEventListener('click', async () => {
       console.log(id);
       try {
@@ -307,7 +353,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         if (data?.chatSession) {
           chatMessages = data.chatSession.messages;
           console.log(chatMessages);
-          localStorage.setItem("chatSession", JSON.stringify(chatMessages));
+          // localStorage.setItem("chatSession", JSON.stringify(chatMessages));
           chatMessages?.forEach((item) => {
             console.log(item);
             appendMessage(item.sender, item.content)
@@ -340,9 +386,6 @@ document.addEventListener('DOMContentLoaded', async () => {
       delModal.style.display = 'flex';
       console.log("message", message);
 
-
-
-
       confirmDel.addEventListener('click', async () => {
         try {
           let res = await fetch(`${URL}/api/chat/delete/${id}`, {
@@ -355,10 +398,10 @@ document.addEventListener('DOMContentLoaded', async () => {
             // await fetchChatTitle();
             const updatedTitles = currentTitles.filter(item => item._id !== id);
             localStorage.setItem("chatTitles", JSON.stringify(updatedTitles));
-          console.log('Deleted successfully');
+            console.log('Deleted successfully');
             delModal.style.display = 'none';
-            // Optionally: remove item from UI/localStorage here
-             messageItem.remove()
+            // remove the message from sidebar
+            messageItem.remove()
           } else {
             console.error('Delete failed:', data?.error || res.statusText);
             delModal.style.display = 'none';
@@ -375,17 +418,6 @@ document.addEventListener('DOMContentLoaded', async () => {
       window.addEventListener('click', (e) => {
         if (e.target === delModal) delModal.style.display = 'none';
       });
-
-      // noBtn.addEventListener('click', () => {
-      // });
-
-      // yesBtn.addEventListener('click', () => {
-      //   let stored = JSON.parse(localStorage.getItem('chatTitles')) || [];
-      //   stored.splice(index, 1);
-      //   localStorage.setItem('chatTitles', JSON.stringify(stored));
-
-      //   messageItem.remove();
-      // });
     });
   }
 
@@ -469,30 +501,44 @@ document.addEventListener('DOMContentLoaded', async () => {
   //   }
   // }
   async function fetchChatTitle() {
-    try {
-      const res = await fetch(`${URL}/api/chat/title`, {
-        method: 'GET',
-        credentials: 'include'
-      });
-      const data = await res.json();
-      if (data?.titles) {
-        // Update localStorage with server titles
-        localStorage.setItem("chatTitles", JSON.stringify(data.titles));
-        data.titles.forEach((message) => {
-          if (message.title && message._id) {
-            console.log(message.title && message._id);
-            
-            renderChatTitle(message.title, message._id);
-          } else {
-            console.log("Skipping invalid server title:", message);
-          }
-        });
-      }
-      return "hit fetch";
-    } catch (err) {
-      console.log("Error fetching chat titles from DB:", err);
+    let rawTitle = localStorage.getItem("chatTitles")
+    localTitle = JSON.parse(rawTitle);
+    if (localTitle) {
+      localTitle.forEach((message) => {
+        if (message.title && message._id) {
+          console.log(message.title && message._id);
+
+          renderChatTitle(message.title, message._id);
+        } else {
+          console.log("Skipping invalid local title:", message);
+        }
+      })
     }
-  }
+
+        try {
+          const res = await fetch(`${URL}/api/chat/title`, {
+            method: 'GET',
+            credentials: 'include'
+          });
+          const data = await res.json();
+          if (data?.titles) {
+            // Update localStorage with server titles
+            localStorage.setItem("chatTitles", JSON.stringify(data.titles));
+            data.titles.forEach((message) => {
+              if (message.title && message._id) {
+                console.log(message.title && message._id);
+
+                renderChatTitle(message.title, message._id);
+              } else {
+                console.log("Skipping invalid server title:", message);
+              }
+            });
+          }
+          return "hit fetch";
+        } catch (err) {
+          console.log("Error fetching chat titles from DB:", err);
+        }
+      }
   await fetchChatTitle();
-});
+    });
 
