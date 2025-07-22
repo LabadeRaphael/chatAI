@@ -274,17 +274,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     console.log(`Chat title already rendered for id: ${id}`);
     return;
   }
-    // Check if this _id is already in localStorage
-    // if (currentTitles.some(item => item._id === id)){
-    //        console.log("id already exist");
-
-    //   return; // Skip if _id exists
-    // }
-    // if (!isNewChat) {
-    //   console.log("id already exist");
-
-    //   return; // Skip if _id exists
-    // }// Add new title to localStorage
+  
     renderedChatIds.add(id); // Mark this chat ID as rendered
 
     currentTitles.push({ message, _id: id });
@@ -337,30 +327,6 @@ document.addEventListener('DOMContentLoaded', async () => {
     tooltip.innerHTML = `<div class="tooltip-item delete-option">Delete</div>`;
     messageItem.appendChild(tooltip);
 
-
-
-    // const tooltip = document.createElement('div');
-
-    // tooltip.classList.add('tooltip');
-    // tooltip.innerText = item.textContent.trim();
-
-    // tooltip.innerText = "Delete";
-
-    // item.appendChild(tooltip);
-
-    // item.addEventListener('mouseenter', () => {
-    //   if (sidebar.classList.contains('closed')) {
-    //     tooltip.style.display = 'block';
-    //   }
-    // });
-
-    // item.addEventListener('mouseleave', () => {
-    //   tooltip.style.display = 'none';
-    // });
-
-
-
-
     dotSpan.addEventListener("click", () => {
       tooltip.style.display = tooltip.style.display === 'none' ? 'block' : 'none';
       console.log("message", message);
@@ -376,8 +342,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
 
 
-      // const yesBtn = confirmBox.querySelector('.yes-btn');
-      // const noBtn = confirmBox.querySelector('.no-btn');
+
       confirmDel.addEventListener('click', async () => {
         try {
           let res = await fetch(`${URL}/api/chat/delete/${id}`, {
@@ -387,11 +352,13 @@ document.addEventListener('DOMContentLoaded', async () => {
 
           const data = await res.json();
           if (res.ok) {
-            console.log(data.message);
-
-            console.log('Deleted successfully');
+            // await fetchChatTitle();
+            const updatedTitles = currentTitles.filter(item => item._id !== id);
+            localStorage.setItem("chatTitles", JSON.stringify(updatedTitles));
+          console.log('Deleted successfully');
             delModal.style.display = 'none';
             // Optionally: remove item from UI/localStorage here
+             messageItem.remove()
           } else {
             console.error('Delete failed:', data?.error || res.statusText);
             delModal.style.display = 'none';

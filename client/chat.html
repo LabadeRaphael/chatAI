@@ -18,9 +18,10 @@
           <input type="text" id="search" placeholder="Search" class="search-input" />
           <button id="searchBtn" class="search-btn"><i class="fas fa-search"></i></button>
         </div>
-        <button id="newChatBtn" class="sidebar-item"><i class="fas fa-plus"></i> New Chat</button>
-        <button id="chatHistoryBtn" class="sidebar-item"><i class="fas fa-history"></i> Chat History</button>
-        <button id="logoutBtn" class="sidebar-item"><i class="fas fa-sign-out-alt"></i> Logout</button>
+        <button id="newChatBtn" class="sidebar-item"><i class="fas fa-plus"></i> <span>New Chat</span></button>
+        <button id="chatHistoryBtn" class="sidebar-item"><i class="fas fa-history"></i><span>Chat History</span></button>
+        <div id="chat-history" class="chat-history"></div>
+        <button id="logoutBtn" class="sidebar-item"><i class="fas fa-sign-out-alt"></i><span>Logout</span></button>
       </div>
     </aside>
     <div class="main-content">
@@ -33,6 +34,21 @@
           <span class="icon"><i class="fas fa-user"></i></span>
         </div>
       </nav>
+      <!-- still douting waiting for stephen -->
+      
+      
+    <!-- <div class="search-bar">
+    <input type="text" id="searchInput" placeholder="Search messages..." />
+    <button id="searchBtn">Search</button>
+  </div> -->
+  
+  <!-- not sure yet -->
+      <!-- Search Content Displayer -->
+      
+      
+       <div id="messageBox"></div>
+      <div id="searchResults" class="search-result"></div>
+      
       <div id="chat-box" class="chat-box"></div>
       <div class="chat-input-container">
         <form id="chat-form" class="chat-form">
@@ -48,12 +64,23 @@
     <div class="modal-content">
       <p>Are you sure you want to logout?</p>
       <div class="modal-buttons">
-        <button id="confirmLogout">Yes, Logout</button>
         <button id="cancelLogout">Cancel</button>
+        <button id="confirmLogout">Yes, Logout</button>
       </div>
     </div>
   </div>
-
+    <!-- Delete Confirmation Modal -->
+  <div id="delModal" class="modal">
+    <div class="modal-content">
+      <b>Delete Chat?</b>
+      <p>This will delete <b id="delMsg"></b> chat session</p>
+      <div class="modal-buttons">
+        <button id="cancelDel">Cancel</button>
+        <button id="confirmDel">Delete</button>
+      </div>
+    </div>
+  </div>
+ 
   <script src="chat.js"></script>
 </body>
 </html>
