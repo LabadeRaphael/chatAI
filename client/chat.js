@@ -104,11 +104,16 @@ document.addEventListener('DOMContentLoaded', async () => {
       isSidebarOpen = sidebar.classList.contains('open');
     } else {
       isSidebarOpen = !shouldClose;
+      chatHistory.style.display="none"
     }
 
-    // Hide all tooltips if sidebar is open
     if (isSidebarOpen) {
+    
+      // Hide all tooltips if sidebar is open
       document.querySelectorAll('.tooltip').forEach(t => t.style.display = 'none');
+      
+      // Hide all chathistory if sidebar is open
+      chatHistory.style.display="flex"
     }
   });
 
@@ -159,33 +164,23 @@ document.addEventListener('DOMContentLoaded', async () => {
         credentials: 'include', // important to send cookies
       });
       const result = await res.json()
-      const searchData = result?.searchData
-      localStorage.setItem("searchData", JSON.stringify(searchData))
-
+      const searchData = result.searchData
 
       if (res.ok) {
-        const rawData = localStorage.getItem("searchData");
-        const getSearchItem = rawData ? JSON.parse(rawData) : [];
-        console.log(getSearchItem);
-        console.log(res.status);
-        console.log(res);
-
-
         const successMsg = result?.message
         messageBox.className = "message success"
         messageBox.innerText = successMsg
-      }
-
-      if (searchData && searchData?.length > 0) {
-
-        searchData?.forEach(msg => {
+        searchData.forEach(msg => {
           const box = document.createElement("div");
           box.classList.add("message-box");
           box.innerHTML = `
-            <div class="message-user">${msg.sender || 'You'}</div>
+            <div class="message-user">
+            ${msg.sender || 'You'}
+            </div>
             <div class="message-content">${msg.content}</div>
           `;
           searchResults.appendChild(box);
+          // chatBox.appendChild(box);
         });
       }
       if (!res.ok) {
@@ -222,43 +217,34 @@ document.addEventListener('DOMContentLoaded', async () => {
     }, 3000);
 
   });
+
   chatHistoryBtn.addEventListener('click', async () => {
     chatBox.innerHTML = ""
-    const localData = localStorage.getItem("chatHistory");
 
-    if (localData) {
+    try {
+      const res = await fetch(`${URL}/api/chat/history`, {
+        method: 'GET',
+        credentials: 'include'
+      });
+      const data = await res.json();
+      console.log(data);
 
-      const chatMessages = JSON.parse(localData);
-      chatMessages.forEach(item => appendMessage(item.sender, item.content));
-    } else {
-      // fallback to DB
-      try {
-        const res = await fetch(`${URL}/api/chat/history`, {
-          method: 'GET',
-          credentials: 'include'
-        });
-        const data = await res.json();
-        console.log(data);
-
-        if (data?.history) {
-          chatMessages = data.history;
-          localStorage.setItem("chatHistory", JSON.stringify(chatMessages));
-          chatMessages.forEach(item => appendMessage(item.sender, item.content));
-          // chatHistory.appendChild(item.sender);
-        } else {
-          throw new Error(data?.error || 'Something went wrong');
-        }
-      } catch (err) {
-        console.log("Error fetching chat history from DB", err);
-        const errorMsg = err.message || 'Something went wrong retry'
-        messageBox.className = "message error"
-        messageBox.innerText = errorMsg
+      if (data?.history) {
+        chatMessages = data.history;
+        chatMessages.forEach(item => appendMessage(item.sender, item.content));
+      } else {
+        throw new Error(data?.error || 'Something went wrong');
       }
-      setTimeout(() => {
-        messageBox.textContent = "";
-        messageBox.removeAttribute("class")
-      }, 3000);
+    } catch (err) {
+      console.log("Error fetching chat history from DB", err);
+      const errorMsg = err.message || 'Something went wrong retry'
+      messageBox.className = "message error"
+      messageBox.innerText = errorMsg
     }
+    setTimeout(() => {
+      messageBox.textContent = "";
+      messageBox.removeAttribute("class")
+    }, 3000);
   });
 
   if (logoutBtn && modal) {
@@ -280,7 +266,6 @@ document.addEventListener('DOMContentLoaded', async () => {
       if (e.target === modal) modal.style.display = 'none';
     });
   }
-  let isNewChat = newChat === true
   if (chatForm) {
     let chatMessages = [];
     chatForm.addEventListener('submit', async (e) => {
@@ -305,9 +290,6 @@ document.addEventListener('DOMContentLoaded', async () => {
 
         const data = await res.json();
         if (data?.reply) {
-          chatMessages.push({ sender: 'user', message: message }); // user message
-          chatMessages.push({ sender: 'bot', message: data.reply }); // bot reply
-          localStorage.setItem("chatHistory", JSON.stringify(chatMessages))
           appendMessage('bot', data.reply);
           if (isNewChat) {
             newChat = false; // Reset newChat flag
@@ -347,110 +329,28 @@ document.addEventListener('DOMContentLoaded', async () => {
     messageItem.classList.add('message-item');
     messageItem.appendChild(msgDiv);
     messageItem.appendChild(dotSpan);
-
     chatHistory.appendChild(messageItem);
-    // sidebarItems.scrollTop = sidebarItems.scrollHeight;
-    
-    
-    // msgDiv.addEventListener('click', async () => {
-    //   console.log(id, message);
-    //   console.log("i see individual messsage", message);
-    //   chatSession = []
-    //   const rawChatSession = localStorage.getItem("chatSession");
 
-
-    //   chatBox.innerHTML = ""
-    //   if (rawChatSession) {
-    //     localChatSession = JSON.parse(rawChatSession);
-        
-        
-    //     // console.log(localChatSession);
-        
-        
-        
-    //     // chatSession = data.chatSession.messages;
-    //     // console.log("chatSession", chatSession);
-        
-    //     localChatSession.forEach((item) => {
-    //       // chatSession.push({ sender: 'user', message: item.sender }); // user message
-    //       // chatSession.push({ sender: 'bot', message: item.content }); // bot reply
-    //       // localStorage.removeItem("chatSession")
-          
-    //       // localStorage.setItem("chatSession", JSON.stringify(chatSession))
-    //       console.log("item",item);
-          
-    //       console.log(item.sender, item.content);
-          
-    //       appendMessage(item.sender, item.content)
-
-    //     });
-    //     // localStorage.removeItem("chatSession");
-    //     // chatSession = localChatSession;
-    //     // console.log("latest",chatSession);
-        
-    //   } else {
-    //     try {
-    //       console.log("no local data");
-          
-    //       const res = await fetch(`${URL}/api/chat/history/${id}`, {
-    //         method: 'GET',
-    //         credentials: 'include'
-    //       });
-    //       const data = await res.json();
-    //       if (data?.chatSession) {
-    //         chatSession = data.chatSession.messages;
-    //         console.log("chatSession", chatSession);
-    //         chatSession?.forEach((item) => {
-    //           console.log(item);
-    //           // chatSession.push({ sender: 'user', message: item.content }); // user message
-    //           // chatSession.push({ sender: 'bot', message: item.content }); // bot reply
-    //           // localStorage.setItem("chatSession", JSON.stringify(chatSession))
-              
-    //           appendMessage(item.sender, item.content)
-    //           // console.log(item.sender);
-              
-    //         });
-    //         localStorage.setItem("chatSession", JSON.stringify(chatSession));
-    //       }
-    //     } catch (err) {
-    //       console.log("Error fetching chat history for ID", err);
-    //     }
-    //   }
-
-    // })
-    
-    
     msgDiv.addEventListener('click', async () => {
-  chatBox.innerHTML = ""; // clear current chat
-  const storageKey = `chatSession-${id}`;
-  let localChat = localStorage.getItem(storageKey);
-
-  if (localChat) {
-    console.log("Loading from localStorage...");
-    JSON.parse(localChat).forEach(msg => {
-      appendMessage(msg.sender, msg.content);
-    });
-  } else {
-    console.log("Fetching from API...");
-    try {
-      const res = await fetch(`${URL}/api/chat/history/${id}`, {
-        method: 'GET',
-        credentials: 'include',
-      });
-      const data = await res.json();
-      const messages = data?.chatSession?.messages || [];
-
-      messages.forEach(msg => {
-        appendMessage(msg.sender, msg.content);
-      });
-
-      // Save to localStorage for next time
-      localStorage.setItem(storageKey, JSON.stringify(messages));
-    } catch (err) {
-      console.error("Error loading chat:", err);
-    }
-  }
-});
+      chatBox.innerHTML = ""
+      try {
+        const res = await fetch(`${URL}/api/chat/history/${id}`, {
+          method: 'GET',
+          credentials: 'include'
+        });
+        const data = await res.json();
+        if (data?.chatSession) {
+          chatSession = data.chatSession.messages;
+          console.log("chatSession", chatSession);
+          chatSession?.forEach((item) => {
+            console.log(item);
+            appendMessage(item.sender, item.content)
+          });
+        }
+      } catch (err) {
+        console.log("Error fetching chat history for ID", err);
+      }
+    })
 
     // Tooltip container
     const tooltip = document.createElement('div');
@@ -465,7 +365,6 @@ document.addEventListener('DOMContentLoaded', async () => {
     })
 
     const deleteOption = tooltip.querySelector('.delete-option');
-
     deleteOption.addEventListener('click', () => {
       tooltip.style.display = 'none';
       delMsg.textContent = message
@@ -507,9 +406,6 @@ document.addEventListener('DOMContentLoaded', async () => {
     });
   }
 
-
-
-
   function appendMessage(type, message) {
     const msgDiv = document.createElement('div');
     msgDiv.classList.add('message', type);
@@ -517,8 +413,8 @@ document.addEventListener('DOMContentLoaded', async () => {
     chatBox.appendChild(msgDiv);
     chatBox.scrollTop = chatBox.scrollHeight;
   }
+  
   async function fetchHistory() {
-
     const localData = localStorage.getItem("chatHistory");
 
     if (localData) {
@@ -545,47 +441,7 @@ document.addEventListener('DOMContentLoaded', async () => {
       }
     }
   }
-
-  // async function fetchChatTitle() {
-
-  //   const rawTitle = localStorage.getItem("chatTitles");
-  //   let localTitle = rawTitle ? JSON.parse(rawTitle) : [];
-  //   if (localTitle.length > 0) {
-  //     // Render titles from localStorage, skipping duplicates
-  //     localTitle.forEach((message) => {
-  //       if (message.title && message._id) {
-  //         renderChatTitle(message.title, message._id);
-  //       } else {
-  //         console.log("Skipping invalid title:", message);
-  //       }
-  //     });
-  //   }
-  //   else {
-  //     // fallback to DB
-  //     try {
-  //       const res = await fetch(`${URL}/api/chat/title`, {
-  //         method: 'GET',
-  //         credentials: 'include'
-  //       });
-  //       const data = await res.json();
-  //       console.log(data);
-
-  //       if (data?.titles) {
-  //         dbTitle = data.titles;
-  //         console.log("dbtitle", dbTitle);
-
-  //         localStorage.setItem("chatTitles", JSON.stringify(dbTitle));
-  //         dbTitle.forEach((message) => {
-  //           console.log(message, message._id);
-  //           console.log(message.title, message._id);
-  //           renderChatTitle(message.title, message._id)
-  //         });
-  //       }
-  //     } catch (err) {
-  //       console.log("Error fetching chat title from DB", err);
-  //     }
-  //   }
-  // }
+  
   async function fetchChatTitle() {
     let rawTitle = localStorage.getItem("chatTitles")
     localTitle = JSON.parse(rawTitle);
@@ -600,7 +456,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         }
       })
     }
-
+    
     try {
       const res = await fetch(`${URL}/api/chat/title`, {
         method: 'GET',
