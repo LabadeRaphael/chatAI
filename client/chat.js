@@ -223,17 +223,16 @@ document.addEventListener('DOMContentLoaded', async () => {
 
   });
   chatHistoryBtn.addEventListener('click', async () => {
-    // await fetchHistory()
     chatBox.innerHTML = ""
     const localData = localStorage.getItem("chatHistory");
 
     if (localData) {
-      chatMessages = JSON.parse(localData);
-      chatMessages.forEach(item => appendMessage(item.sender, item.message));
+
+      const chatMessages = JSON.parse(localData);
+      chatMessages.forEach(item => appendMessage(item.sender, item.content));
     } else {
       // fallback to DB
       try {
-        // chatBox.innerHTML=""
         const res = await fetch(`${URL}/api/chat/history`, {
           method: 'GET',
           credentials: 'include'
@@ -245,11 +244,20 @@ document.addEventListener('DOMContentLoaded', async () => {
           chatMessages = data.history;
           localStorage.setItem("chatHistory", JSON.stringify(chatMessages));
           chatMessages.forEach(item => appendMessage(item.sender, item.content));
-          chatHistory.appendChild(item.sender);
+          // chatHistory.appendChild(item.sender);
+        } else {
+          throw new Error(data?.error || 'Something went wrong');
         }
       } catch (err) {
         console.log("Error fetching chat history from DB", err);
+        const errorMsg = err.message || 'Something went wrong retry'
+        messageBox.className = "message error"
+        messageBox.innerText = errorMsg
       }
+      setTimeout(() => {
+        messageBox.textContent = "";
+        messageBox.removeAttribute("class")
+      }, 3000);
     }
   });
 
@@ -263,6 +271,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         credentials: 'include'
       });
       window.location.href = 'login.html';
+      localStorage.clear()
     });
     cancelLogout.addEventListener('click', () => {
       modal.style.display = 'none';
@@ -296,7 +305,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
         const data = await res.json();
         if (data?.reply) {
-          chatMessages.push({ sender: 'user', message }); // user message
+          chatMessages.push({ sender: 'user', message: message }); // user message
           chatMessages.push({ sender: 'bot', message: data.reply }); // bot reply
           localStorage.setItem("chatHistory", JSON.stringify(chatMessages))
           appendMessage('bot', data.reply);
@@ -341,31 +350,108 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     chatHistory.appendChild(messageItem);
     // sidebarItems.scrollTop = sidebarItems.scrollHeight;
+    
+    
+    // msgDiv.addEventListener('click', async () => {
+    //   console.log(id, message);
+    //   console.log("i see individual messsage", message);
+    //   chatSession = []
+    //   const rawChatSession = localStorage.getItem("chatSession");
+
+
+    //   chatBox.innerHTML = ""
+    //   if (rawChatSession) {
+    //     localChatSession = JSON.parse(rawChatSession);
+        
+        
+    //     // console.log(localChatSession);
+        
+        
+        
+    //     // chatSession = data.chatSession.messages;
+    //     // console.log("chatSession", chatSession);
+        
+    //     localChatSession.forEach((item) => {
+    //       // chatSession.push({ sender: 'user', message: item.sender }); // user message
+    //       // chatSession.push({ sender: 'bot', message: item.content }); // bot reply
+    //       // localStorage.removeItem("chatSession")
+          
+    //       // localStorage.setItem("chatSession", JSON.stringify(chatSession))
+    //       console.log("item",item);
+          
+    //       console.log(item.sender, item.content);
+          
+    //       appendMessage(item.sender, item.content)
+
+    //     });
+    //     // localStorage.removeItem("chatSession");
+    //     // chatSession = localChatSession;
+    //     // console.log("latest",chatSession);
+        
+    //   } else {
+    //     try {
+    //       console.log("no local data");
+          
+    //       const res = await fetch(`${URL}/api/chat/history/${id}`, {
+    //         method: 'GET',
+    //         credentials: 'include'
+    //       });
+    //       const data = await res.json();
+    //       if (data?.chatSession) {
+    //         chatSession = data.chatSession.messages;
+    //         console.log("chatSession", chatSession);
+    //         chatSession?.forEach((item) => {
+    //           console.log(item);
+    //           // chatSession.push({ sender: 'user', message: item.content }); // user message
+    //           // chatSession.push({ sender: 'bot', message: item.content }); // bot reply
+    //           // localStorage.setItem("chatSession", JSON.stringify(chatSession))
+              
+    //           appendMessage(item.sender, item.content)
+    //           // console.log(item.sender);
+              
+    //         });
+    //         localStorage.setItem("chatSession", JSON.stringify(chatSession));
+    //       }
+    //     } catch (err) {
+    //       console.log("Error fetching chat history for ID", err);
+    //     }
+    //   }
+
+    // })
+    
+    
     msgDiv.addEventListener('click', async () => {
-      console.log(id);
-      try {
-        chatBox.innerHTML = ""
-        const res = await fetch(`${URL}/api/chat/history/${id}`, {
-          method: 'GET',
-          credentials: 'include'
-        });
-        const data = await res.json();
-        if (data?.chatSession) {
-          chatMessages = data.chatSession.messages;
-          console.log(chatMessages);
-          // localStorage.setItem("chatSession", JSON.stringify(chatMessages));
-          chatMessages?.forEach((item) => {
-            console.log(item);
-            appendMessage(item.sender, item.content)
-            console.log(item.sender);
+  chatBox.innerHTML = ""; // clear current chat
+  const storageKey = `chatSession-${id}`;
+  let localChat = localStorage.getItem(storageKey);
 
-          });
-        }
-      } catch (err) {
-        console.log("Error fetching chat history for ID", err);
-      }
+  if (localChat) {
+    console.log("Loading from localStorage...");
+    JSON.parse(localChat).forEach(msg => {
+      appendMessage(msg.sender, msg.content);
+    });
+  } else {
+    console.log("Fetching from API...");
+    try {
+      const res = await fetch(`${URL}/api/chat/history/${id}`, {
+        method: 'GET',
+        credentials: 'include',
+      });
+      const data = await res.json();
+      const messages = data?.chatSession?.messages || [];
 
-    })
+      messages.forEach(msg => {
+        appendMessage(msg.sender, msg.content);
+      });
+
+      // Save to localStorage for next time
+      localStorage.setItem(storageKey, JSON.stringify(messages));
+    } catch (err) {
+      console.error("Error loading chat:", err);
+    }
+  }
+});
+
     // Tooltip container
     const tooltip = document.createElement('div');
     tooltip.classList.add('tooltip');
@@ -515,30 +601,30 @@ document.addEventListener('DOMContentLoaded', async () => {
       })
     }
 
-        try {
-          const res = await fetch(`${URL}/api/chat/title`, {
-            method: 'GET',
-            credentials: 'include'
-          });
-          const data = await res.json();
-          if (data?.titles) {
-            // Update localStorage with server titles
-            localStorage.setItem("chatTitles", JSON.stringify(data.titles));
-            data.titles.forEach((message) => {
-              if (message.title && message._id) {
-                console.log(message.title && message._id);
+    try {
+      const res = await fetch(`${URL}/api/chat/title`, {
+        method: 'GET',
+        credentials: 'include'
+      });
+      const data = await res.json();
+      if (data?.titles) {
+        // Update localStorage with server titles
+        localStorage.setItem("chatTitles", JSON.stringify(data.titles));
+        data.titles.forEach((message) => {
+          if (message.title && message._id) {
+            console.log(message.title && message._id);
 
-                renderChatTitle(message.title, message._id);
-              } else {
-                console.log("Skipping invalid server title:", message);
-              }
-            });
+            renderChatTitle(message.title, message._id);
+          } else {
+            console.log("Skipping invalid server title:", message);
           }
-          return "hit fetch";
-        } catch (err) {
-          console.log("Error fetching chat titles from DB:", err);
-        }
+        });
       }
+      return "hit fetch";
+    } catch (err) {
+      console.log("Error fetching chat titles from DB:", err);
+    }
+  }
   await fetchChatTitle();
-    });
+});
 

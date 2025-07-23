@@ -6,8 +6,8 @@ document.addEventListener('DOMContentLoaded', () => {
   const msg = params.get('message');
   if (msg === 'session_expired') {
     const errorMsg = "Your session has expired. Please log in again."
-          messageBox.className="message error"
-          messageBox.innerText= errorMsg 
+    messageBox.className="message error"
+    messageBox.innerText= errorMsg 
   }
   else if (msg === 'server_error') {
     const errorMsg = "Internal server error has. Please log in again."
@@ -41,6 +41,7 @@ document.addEventListener('DOMContentLoaded', () => {
           messageBox.innerText=successMsg
           setTimeout(() => {
             window.location.href = 'chat.html';
+            localStorage.clear()
           },1500 );
         } else {
          const errorMsg = data?.message || 'Login failed retry'
