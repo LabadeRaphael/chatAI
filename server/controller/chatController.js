@@ -100,5 +100,18 @@ exports.delChatSession = async (req, res) => {
     res.status(500).json({ error: 'Failed to delete chat' });
   }
 };
+exports.delMessages = async (req, res) => {
+  try {
+    const userId = req.user.id;
+    const messages = await Message.deleteMany({ user: userId });
+    const chatSession = await Chat.deleteMany({ user: userId });
+    console.log(messages);
+    console.log(chatSession);
+
+    res.status(200).json({ message:[], chatSession:[] });
+  } catch (err) {
+    res.status(500).json({ error: 'Failed to delete chat history' });
+  }
+};
 
 

@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -7,6 +8,7 @@
   <link rel="stylesheet" href="chat.css" />
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" />
 </head>
+
 <body>
   <div class="app-container">
     <aside class="sidebar" id="sidebar">
@@ -14,12 +16,13 @@
         <img src="./logo.jpg" alt="AI Help Desk Logo" class="sidebar-logo" />
       </div>
       <div class="sidebar-content">
-        <div class="search-container">
-          <input type="text" id="search" placeholder="Search" class="search-input" />
+        <form class="search-container">
+          <input type="text" id="search" placeholder="Search" class="search-input" required/>
           <button id="searchBtn" class="search-btn"><i class="fas fa-search"></i></button>
-        </div>
+        </form>
         <button id="newChatBtn" class="sidebar-item"><i class="fas fa-plus"></i> <span>New Chat</span></button>
-        <button id="chatHistoryBtn" class="sidebar-item"><i class="fas fa-history"></i><span>Chat History</span></button>
+        <button id="chatHistoryBtn" class="sidebar-item"><i class="fas fa-history"></i><span>Chat
+            History</span></button>
         <button id="logoutBtn" class="sidebar-item"><i class="fas fa-sign-out-alt"></i><span>Logout</span></button>
         <div id="chat-history" class="chat-history"></div>
       </div>
@@ -29,33 +32,35 @@
         <button id="sidebarToggle" class="toggle-btn"><i class="fas fa-bars"></i></button>
         <h2>Nestfinity</h2>
         <div class="nav-icons">
+          <div class="icon userLogo"><b id="userLogo"></b></div>
           <!-- <span class="icon"><i class="fas fa-cog"></i></span> -->
           <!-- <span class="icon"><i class="fas fa-square"></i></span> -->
-          <span class="icon userLogo" ><i id="userLogo"></i></span>
-          
-          <span class="icon"><i class="fas fa-user"></i></span>
+          <!-- <span class="icon"><i class="fas fa-user"></i></span> -->
         </div>
       </nav>
       <!-- still douting waiting for stephen -->
-      
-      
-    <!-- <div class="search-bar">
+
+
+      <!-- <div class="search-bar">
     <input type="text" id="searchInput" placeholder="Search messages..." />
     <button id="searchBtn">Search</button>
   </div> -->
-  
-  <!-- not sure yet -->
+
+      <!-- not sure yet -->
       <!-- Search Content Displayer -->
-      
-      
-       <div id="messageBox"></div>
+
+
+      <div id="messageBox"></div>
       <div id="searchResults" class="search-result"></div>
-      
+      <button class="deleteBtn" id="deleteBtn">
+        <b>Delete chat history</b>
+        <i class="fas fa-trash"></i>
+      </button>
       <div id="chat-box" class="chat-box"></div>
       <div class="chat-input-container">
         <form id="chat-form" class="chat-form">
           <input type="text" id="user-input" placeholder="Type a message..." required />
-          <button type="submit"><i class="fas fa-play"></i></button>
+          <button type="submit" class="senderBtn"><i class="fas fa-play"></i></button>
         </form>
       </div>
     </div>
@@ -71,7 +76,7 @@
       </div>
     </div>
   </div>
-    <!-- Delete Confirmation Modal -->
+  <!-- Delete Confirmation Modal -->
   <div id="delModal" class="modal">
     <div class="modal-content">
       <b>Delete Chat?</b>
@@ -82,7 +87,21 @@
       </div>
     </div>
   </div>
- 
+  
+  <!-- Delete Chat History Confirmation Modal -->
+  <div id="delHisModal" class="modal">
+    <div class="modal-content">
+      <b>Delete All Chat History?</b>
+      <p>This will delete all your chat history</p>
+      <div class="modal-buttons">
+        <button id="cancelHisDel">Cancel</button>
+        <button id="confirmHisDel">Delete</button>
+      </div>
+    </div>
+  </div>
+  <div id="spinner" class="spinner" style="display: none;"></div>
+
   <script src="chat.js"></script>
 </body>
+
 </html>

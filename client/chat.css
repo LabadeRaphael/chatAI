@@ -1,6 +1,7 @@
 :root {
   --cream: #fdf6e3;
   --chocolate: #361F14;
+  --darkchocolate:  #120802;
   --accent: #c69c6d;
   --light-border: #e6dcc7;
 }
@@ -69,10 +70,11 @@ body {
 
 .modal-buttons {
   margin-top: 20px;
+  justify-self: flex-end;
 }
 
 .modal-buttons button {
-  margin: 0 10px;
+  margin: 0 3px;
   padding: 8px 16px;
   border: none;
   border-radius: 6px;
@@ -80,12 +82,12 @@ body {
   font-weight: bold;
 }
 
-#confirmLogout, #confirmDel {
+#confirmLogout, #confirmDel, #confirmHisDel{
   background-color: rgb(255, 194, 68);
   color: #120802;
 }
 
-#cancelLogout,#cancelDel {
+#cancelLogout,#cancelDel, #cancelHisDel {
   background-color: #120802;
   color: white;
 }
@@ -216,6 +218,22 @@ padding: 1rem 0.5rem;
   width: 100%;
   padding: 0.5rem;
 }
+/* loading spinner */
+.spinner {
+  border: 4px solid var(--darkchocolate); /* Cream */
+  border-top: 4px solid var(--cream); /* Chocolate */
+  border-radius: 50%;
+  width: 32px;
+  height: 32px;
+  animation: spin 1s linear infinite;
+  margin: 20px auto;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
 .message-item {
   background-color: var(--cream);
   color: var(--chocolate);
@@ -273,25 +291,36 @@ padding: 1rem 0.5rem;
   white-space: nowrap;
   z-index: 12;
 }
-/* tooltip for delete */
 
 .message-options {
   cursor: pointer;
   padding-left: 8px;
 }
 
-.deletetooltip {
+.delete-tooltip {
+  display: none;
   position: absolute;
-  background: white;
-  border: 1px solid #ccc;
-  z-index: 10;
   padding: 5px;
   border-radius: 4px;
+  background-color: var(--chocolate);
+  color: var(--cream);
+  left: 140px; 
+  transform: translateY(75%);
+  z-index: 12;
 }
-
+.disabled {
+  opacity: 0.5;
+  pointer-events: none;
+}
 .tooltip-item {
   cursor: pointer;
-  padding: 4px 8px;
+  /* padding: 4px 12px; */
+  /* text-align: right;
+  display: flex;
+  justify-self: flex-end;
+  justify-self: end; */
+  left: 120px;
+  
 }
 
 .confirm-box {
@@ -304,6 +333,28 @@ padding: 1rem 0.5rem;
 
 .confirm-box button {
   margin: 0 5px;
+}
+.deleteBtn {
+  display: none;
+  background: none;
+  border: 1px solid red;
+  gap: 10px;
+  margin-top: 3px;
+  border-radius: 10px;
+  justify-content: flex-end;
+  background-color: red;
+  color: var(--cream);
+  font-size: 1.2rem;
+  cursor: pointer;
+  transition: transform 0.2s;
+  padding: 5px;
+  margin-right: 0.2rem;
+   margin-left: 44rem;
+}
+
+.deleteBtn:hover {
+  background-color:var(--cream);
+  color: #ff4444;
 }
 
 

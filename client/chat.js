@@ -35,14 +35,18 @@ document.addEventListener('DOMContentLoaded', async () => {
   const chatHistoryBtn = document.getElementById('chatHistoryBtn');
   const logoutBtn = document.getElementById('logoutBtn');
   // const DelBtn = document.getElementById('logoutBtn');
+  const spinner = document.getElementById('spinner');
   const searchInput = document.getElementById('search');
   const searchBtn = document.getElementById('searchBtn');
   const searchResults = document.getElementById('searchResults');
   const modal = document.getElementById('logoutModal');
   const delModal = document.getElementById('delModal');
+  const delHisModal = document.getElementById('delHisModal');
   const confirmLogout = document.getElementById('confirmLogout');
-  const confirmDel = document.getElementById('confirmDel');
+  const confirmHisDel = document.getElementById('confirmHisDel');
   const cancelDel = document.getElementById('cancelDel');
+  const cancelHisDel = document.getElementById('cancelHisDel');
+  const confirmDel = document.getElementById('confirmDel');
   const chatForm = document.getElementById('chat-form');
   const chatBox = document.getElementById('chat-box');
   const userInput = document.getElementById('user-input');
@@ -51,7 +55,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   const mainContent = document.querySelector('.main-content');
   const sidebarItems = document.querySelectorAll('.sidebar-item');
   const messageBox = document.getElementById('messageBox')
-
+  const delHis = document.getElementById("deleteBtn")
   const newMsg = document.createElement('div');
   const newMsgCon = document.createElement('div');
   newMsg.classList.add('newChat');
@@ -104,16 +108,16 @@ document.addEventListener('DOMContentLoaded', async () => {
       isSidebarOpen = sidebar.classList.contains('open');
     } else {
       isSidebarOpen = !shouldClose;
-      chatHistory.style.display="none"
+      chatHistory.style.display = "none"
     }
 
     if (isSidebarOpen) {
-    
+
       // Hide all tooltips if sidebar is open
       document.querySelectorAll('.tooltip').forEach(t => t.style.display = 'none');
-      
+
       // Hide all chathistory if sidebar is open
-      chatHistory.style.display="flex"
+      chatHistory.style.display = "flex"
     }
   });
 
@@ -151,72 +155,80 @@ document.addEventListener('DOMContentLoaded', async () => {
   });
 
 
-  searchBtn.addEventListener('click', async () => {
+  searchBtn.addEventListener('click', async (e) => {
+    e.preventDefault()
     messageBox.innerHTML = ""
     messageBox.removeAttribute("class");
     let searchTerm = searchInput.value.trim()
     console.log("searchTerm", searchTerm);
     searchResults.innerHTML = ""
     chatBox.innerHTML = ""
-    try {
-      const res = await fetch(`${URL}/api/auth/search?q=${encodeURIComponent(searchTerm)}`, {
-        method: 'GET',
-        credentials: 'include', // important to send cookies
-      });
-      const result = await res.json()
-      const searchData = result.searchData
-
-      if (res.ok) {
-        const successMsg = result?.message
-        messageBox.className = "message success"
-        messageBox.innerText = successMsg
-        searchData.forEach(msg => {
-          const box = document.createElement("div");
-          box.classList.add("message-box");
-          box.innerHTML = `
-            <div class="message-user">
-            ${msg.sender || 'You'}
-            </div>
-            <div class="message-content">${msg.content}</div>
-          `;
-          searchResults.appendChild(box);
-          // chatBox.appendChild(box);
+    if (!searchTerm)  {searchInput.focus()}
+    else{
+      try {
+        searchBtn.classList.add("disabled");
+        const res = await fetch(`${URL}/api/auth/search?q=${encodeURIComponent(searchTerm)}`, {
+          method: 'GET',
+          credentials: 'include', // important to send cookies
         });
-      }
-      if (!res.ok) {
-        console.log(res);
-        console.log("Something went wrong");
-        console.log(result?.message);
-        console.log(result);
-
-
-        const errorMsg = result?.message
-        console.log(errorMsg);
-
-        messageBox.className = "message error" || 'Something went wrong retry'
-        messageBox.innerText = errorMsg
-        console.log(res.status);
-        if (res.status === 401) {
-          console.log(res.status);
-          setTimeout(() => {
-            window.location.href = "login.html"
-          }, 3000);
+        const result = await res.json()
+        const searchData = result.searchData
+  
+        if (res.ok) {
+          const successMsg = result?.message
+          messageBox.className = "message success"
+          messageBox.innerText = successMsg
+          searchData.forEach(msg => {
+            const box = document.createElement("div");
+            box.classList.add("message-box");
+            box.innerHTML = `
+              <div class="message-user">
+              ${msg.sender || 'You'}
+              </div>
+              <div class="message-content">${msg.content}</div>
+            `;
+            searchResults.appendChild(box);
+            // chatBox.appendChild(box);
+          });
         }
-        // throw new Error(result.message || 'Something went wrong');
+        if (!res.ok) {
+          console.log(res);
+          console.log("Something went wrong");
+          console.log(result?.message);
+          console.log(result);
+  
+  
+          const errorMsg = result?.message
+          console.log(errorMsg);
+  
+          messageBox.className = "message error" || 'Something went wrong retry'
+          messageBox.innerText = errorMsg
+          console.log(res.status);
+          if (res.status === 401) {
+            console.log(res.status);
+            setTimeout(() => {
+              window.location.href = "login.html"
+            }, 3000);
+          }
+          // throw new Error(result.message || 'Something went wrong');
+        }
+  
+      } catch (err) {
+        const errorMsg = err.response.data.message || 'Something went wrong retry'
+        messageBox.className = "message error"
+        messageBox.innerText = errorMsg
+  
+      } finally {
+         searchBtn.classList.remove("disabled");
       }
-
-    } catch (err) {
-      const errorMsg = err.response.data.message || 'Something went wrong retry'
-      messageBox.className = "message error"
-      messageBox.innerText = errorMsg
-
+      setTimeout(() => {
+        messageBox.textContent = "";
+        messageBox.removeAttribute("class")
+      }, 3000);
     }
-    setTimeout(() => {
-      messageBox.textContent = "";
-      messageBox.removeAttribute("class")
-    }, 3000);
-
   });
+
+  //  delHis.style.display = "none";
 
   chatHistoryBtn.addEventListener('click', async () => {
     chatBox.innerHTML = ""
@@ -230,9 +242,17 @@ document.addEventListener('DOMContentLoaded', async () => {
       console.log(data);
 
       if (data?.history) {
+        delHis.style.display = "flex";
+
         chatMessages = data.history;
         chatMessages.forEach(item => appendMessage(item.sender, item.content));
-      } else {
+      }
+      else if (data?.history.length === 0) {
+        const errorMsg = "No chat history yet start  chat"
+        messageBox.className = "message error"
+        messageBox.innerText = errorMsg
+      }
+      else {
         throw new Error(data?.error || 'Something went wrong');
       }
     } catch (err) {
@@ -245,6 +265,49 @@ document.addEventListener('DOMContentLoaded', async () => {
       messageBox.textContent = "";
       messageBox.removeAttribute("class")
     }, 3000);
+  });
+
+  delHis.addEventListener("click", async () => {
+    delHisModal.style.display = 'flex';
+
+  })
+  confirmHisDel.addEventListener("click", async () => {
+    try {
+      const res = await fetch(`${URL}/api/chat/history/delete`, {
+        method: 'DELETE',
+        credentials: 'include'
+      });
+      const data = await res.json();
+      console.log(data);
+      if (data.message.length === 0 && data.chatSession.length === 0) {
+        chatBox.innerHTML = ""
+        chatHistory.innerHTML = ""
+        localStorage.removeItem("chatTitles")
+        delHis.style.display = "none";
+        delHisModal.style.display = 'none';
+        const successMsg = "Chat history deleted successfully"
+        messageBox.className = "message success"
+        messageBox.innerText = successMsg
+      }
+      else {
+        throw new Error(data?.error || 'Something went wrong');
+      }
+    } catch (err) {
+      console.log("Error fetching chat history from DB", err);
+      const errorMsg = err.message || 'Something went wrong retry'
+      messageBox.className = "message error"
+      messageBox.innerText = errorMsg
+    }
+    setTimeout(() => {
+      messageBox.textContent = "";
+      messageBox.removeAttribute("class")
+    }, 3000);
+  })
+  cancelHisDel.addEventListener("click", () => {
+    delHisModal.style.display = 'none';
+  })
+  window.addEventListener('click', (e) => {
+    if (e.target === delHisModal) delHisModal.style.display = 'none';
   });
 
   if (logoutBtn && modal) {
@@ -281,6 +344,7 @@ document.addEventListener('DOMContentLoaded', async () => {
       userInput.value = '';
 
       try {
+        chatForm.classList.add("disabled");
         const res = await fetch(`${URL}/api/chat`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
@@ -301,6 +365,8 @@ document.addEventListener('DOMContentLoaded', async () => {
       } catch (err) {
         appendMessage('bot', 'Error connecting to server.');
         console.log("Error in chat submission");
+      } finally {
+        chatForm.classList.remove("disabled");
       }
     });
   }
@@ -314,6 +380,10 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     renderedChatIds.add(id); // Mark this chat ID as rendered
 
+    if (message.length > 12) {
+      message = message.slice(0, 12) + "..."
+      console.log(message);
+    }
     currentTitles.push({ message, _id: id });
     localStorage.setItem("chatTitles", JSON.stringify(currentTitles));
     console.log("create chatTitle in render");
@@ -354,9 +424,8 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     // Tooltip container
     const tooltip = document.createElement('div');
-    tooltip.classList.add('tooltip');
-    tooltip.style.display = 'none';
-    tooltip.innerHTML = `<div class="tooltip-item delete-option">Delete</div>`;
+    tooltip.classList.add('delete-tooltip');
+    tooltip.innerHTML = "Delete";
     messageItem.appendChild(tooltip);
 
     dotSpan.addEventListener("click", () => {
@@ -364,8 +433,7 @@ document.addEventListener('DOMContentLoaded', async () => {
       console.log("message", message);
     })
 
-    const deleteOption = tooltip.querySelector('.delete-option');
-    deleteOption.addEventListener('click', () => {
+    tooltip.addEventListener('click', () => {
       tooltip.style.display = 'none';
       delMsg.textContent = message
       delModal.style.display = 'flex';
@@ -413,7 +481,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     chatBox.appendChild(msgDiv);
     chatBox.scrollTop = chatBox.scrollHeight;
   }
-  
+
   async function fetchHistory() {
     const localData = localStorage.getItem("chatHistory");
 
@@ -441,7 +509,7 @@ document.addEventListener('DOMContentLoaded', async () => {
       }
     }
   }
-  
+
   async function fetchChatTitle() {
     let rawTitle = localStorage.getItem("chatTitles")
     localTitle = JSON.parse(rawTitle);
@@ -449,14 +517,13 @@ document.addEventListener('DOMContentLoaded', async () => {
       localTitle.forEach((message) => {
         if (message.title && message._id) {
           console.log(message.title && message._id);
-
           renderChatTitle(message.title, message._id);
         } else {
           console.log("Skipping invalid local title:", message);
         }
       })
     }
-    
+
     try {
       const res = await fetch(`${URL}/api/chat/title`, {
         method: 'GET',
@@ -469,7 +536,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         data.titles.forEach((message) => {
           if (message.title && message._id) {
             console.log(message.title && message._id);
-
+            console.log(message.title.length);
             renderChatTitle(message.title, message._id);
           } else {
             console.log("Skipping invalid server title:", message);
