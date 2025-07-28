@@ -93,6 +93,10 @@ input, button {
   cursor: pointer;
   border: none;
 }
+.disabled {
+  opacity: 0.5;
+  pointer-events: none;
+}
 /* message content displayer */
 .message {
   padding: 1rem 1.5rem;

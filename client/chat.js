@@ -36,6 +36,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   const logoutBtn = document.getElementById('logoutBtn');
   // const DelBtn = document.getElementById('logoutBtn');
   const spinner = document.getElementById('spinner');
+  const searchContainer = document.getElementById('searchContainer');
   const searchInput = document.getElementById('search');
   const searchBtn = document.getElementById('searchBtn');
   const searchResults = document.getElementById('searchResults');
@@ -109,6 +110,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     } else {
       isSidebarOpen = !shouldClose;
       chatHistory.style.display = "none"
+       searchContainer.style.display="none"
     }
 
     if (isSidebarOpen) {
@@ -118,6 +120,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
       // Hide all chathistory if sidebar is open
       chatHistory.style.display = "flex"
+      searchContainer.style.display="flex"
     }
   });
 
@@ -144,6 +147,8 @@ document.addEventListener('DOMContentLoaded', async () => {
   newChatBtn.addEventListener('click', () => {
     newChat = true;
     chatBox.innerHTML = ""
+    // remove delete btn if present
+    delHis.style.display = "none";
     const newMsg = document.createElement('div');
     const newMsgCon = document.createElement('div');
     newMsg.classList.add('newChat');
@@ -158,11 +163,12 @@ document.addEventListener('DOMContentLoaded', async () => {
   searchBtn.addEventListener('click', async (e) => {
     e.preventDefault()
     messageBox.innerHTML = ""
+     // remove delete btn if present
+    delHis.style.display = "none";
     messageBox.removeAttribute("class");
     let searchTerm = searchInput.value.trim()
     console.log("searchTerm", searchTerm);
     searchResults.innerHTML = ""
-    chatBox.innerHTML = ""
     if (!searchTerm)  {searchInput.focus()}
     else{
       try {
@@ -175,6 +181,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         const searchData = result.searchData
   
         if (res.ok) {
+          chatBox.innerHTML = ""
           const successMsg = result?.message
           messageBox.className = "message success"
           messageBox.innerText = successMsg
@@ -243,7 +250,6 @@ document.addEventListener('DOMContentLoaded', async () => {
 
       if (data?.history) {
         delHis.style.display = "flex";
-
         chatMessages = data.history;
         chatMessages.forEach(item => appendMessage(item.sender, item.content));
       }

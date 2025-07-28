@@ -13,23 +13,23 @@ exports.sendMessage = async (req, res) => {
   const { content, title, newStatus } = req.body;
   const userId = req.user.id;
   console.log(newStatus);
-  
+
 
   try {
     let chat;
-    if (newStatus){
+    if (newStatus) {
       // const title=  title.length > 50 ? title.slice(0, 50) + '...' : title
       chat = await Chat.create({ user: userId, title, messages: [] });
-    }else{
-      chat = await Chat.findOne({ user: userId}).sort({ createdAt: -1 });;
+    } else {
+      chat = await Chat.findOne({ user: userId }).sort({ createdAt: -1 });;
       if (!chat) {
-      // const title=  title.length > 50 ? title.slice(0, 50) + '...' : title
-      chat = await Chat.create({ user: userId, title, messages: [] });
+        // const title=  title.length > 50 ? title.slice(0, 50) + '...' : title
+        chat = await Chat.create({ user: userId, title, messages: [] });
+      }
     }
-    }
- 
-    await Message.create({ user: userId, sender: 'user', content });
-    
+
+    await Message.create({ user: userId, sender: 'user', content, chatSessionId: chat._id });
+
     const aiResponse = await openai.chat.completions.create({
       model: 'mistralai/Mistral-7B-Instruct-v0.2',
       messages: [
@@ -37,10 +37,10 @@ exports.sendMessage = async (req, res) => {
         { role: 'user', content },
       ],
     });
-    
+
     const botReply = aiResponse.choices[0].message.content;
-    
-    await Message.create({ user: userId, sender: 'bot', content: botReply });
+
+    await Message.create({ user: userId, sender: 'bot', content: botReply, chatSessionId: chat._id });
     // 4. Push bot reply
     chat.messages.push({ sender: 'user', content });
     chat.messages.push({ sender: 'bot', content: botReply });
@@ -62,7 +62,7 @@ exports.getMessages = async (req, res) => {
     const messages = await Message.find({ user: userId }).sort({ createdAt: 1 });
     console.log(messages);
 
-    res.status(200).json({ history:messages });
+    res.status(200).json({ history: messages });
   } catch (err) {
     res.status(500).json({ error: 'Failed to retrieve messages' });
   }
@@ -83,7 +83,7 @@ exports.getChatSession = async (req, res) => {
   try {
     const chats = await Chat.findOne({ user: userId, _id: id });
     console.log(chats);
-    
+
     res.status(200).json({ chatSession: chats });
   } catch (err) {
     res.status(500).json({ error: 'Failed to fetch chat titles' });
@@ -92,10 +92,17 @@ exports.getChatSession = async (req, res) => {
 exports.delChatSession = async (req, res) => {
   const id = req.params.id;
   const userId = req.user.id;
+  console.log("del id", id);
 
   try {
     const response = await Chat.deleteOne({ _id: id, user: userId });
-    res.status(200).json({ message:"successful", response});
+    const delresponse = await Message.deleteMany({
+      chatSessionId
+        : id, user: userId
+    });
+    console.log(delresponse);
+
+    res.status(200).json({ message: "successful", response });
   } catch (err) {
     res.status(500).json({ error: 'Failed to delete chat' });
   }
@@ -108,7 +115,7 @@ exports.delMessages = async (req, res) => {
     console.log(messages);
     console.log(chatSession);
 
-    res.status(200).json({ message:[], chatSession:[] });
+    res.status(200).json({ message: [], chatSession: [] });
   } catch (err) {
     res.status(500).json({ error: 'Failed to delete chat history' });
   }
