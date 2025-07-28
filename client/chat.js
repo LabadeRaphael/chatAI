@@ -67,6 +67,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   chatBox.appendChild(newMsgCon);
   let isSidebarOpen = true;
   let newChat = true;
+  let sessionID;
 
   // Tooltip control
   sidebarItems.forEach(item => {
@@ -175,7 +176,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         searchBtn.classList.add("disabled");
         const res = await fetch(`${URL}/api/auth/search?q=${encodeURIComponent(searchTerm)}`, {
           method: 'GET',
-          credentials: 'include', // important to send cookies
+          credentials: 'include',
         });
         const result = await res.json()
         const searchData = result.searchData
@@ -185,6 +186,8 @@ document.addEventListener('DOMContentLoaded', async () => {
           const successMsg = result?.message
           messageBox.className = "message success"
           messageBox.innerText = successMsg
+          console.log(searchData);
+          
           searchData.forEach(msg => {
             const box = document.createElement("div");
             box.classList.add("message-box");
@@ -235,11 +238,9 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
   });
 
-  //  delHis.style.display = "none";
-
   chatHistoryBtn.addEventListener('click', async () => {
     chatBox.innerHTML = ""
-
+    chatHistoryBtn.classList.add("disabled");
     try {
       const res = await fetch(`${URL}/api/chat/history`, {
         method: 'GET',
@@ -266,6 +267,8 @@ document.addEventListener('DOMContentLoaded', async () => {
       const errorMsg = err.message || 'Something went wrong retry'
       messageBox.className = "message error"
       messageBox.innerText = errorMsg
+    }finally{
+      chatHistoryBtn.classList.remove("disabled");
     }
     setTimeout(() => {
       messageBox.textContent = "";
@@ -355,7 +358,7 @@ document.addEventListener('DOMContentLoaded', async () => {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           credentials: 'include',
-          body: JSON.stringify({ content: message, title: message, newStatus: isNewChat })
+          body: JSON.stringify({ content: message, title: message, newStatus: isNewChat, sessionID:sessionID?sessionID:null })
         });
 
         const data = await res.json();
@@ -409,10 +412,15 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     msgDiv.addEventListener('click', async () => {
       chatBox.innerHTML = ""
+      newChat = false;
+      console.log("id",id);
+      sessionID=id 
+      
+      
       try {
         const res = await fetch(`${URL}/api/chat/history/${id}`, {
           method: 'GET',
-          credentials: 'include'
+          credentials: 'include',
         });
         const data = await res.json();
         if (data?.chatSession) {

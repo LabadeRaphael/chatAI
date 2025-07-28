@@ -385,8 +385,6 @@ body {
   /* Replaces fixed 44rem for flexibility */
   cursor: pointer;
   transition: transform 0.2s ease-in-out;
-  /* Smooth transition */
-  display: flex;
   /* Enable flex for better alignment */
   justify-content: center;
   /* Center content */

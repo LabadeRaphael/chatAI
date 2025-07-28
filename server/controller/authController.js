@@ -80,18 +80,34 @@ exports.searchMessage = async (req,res)=>{
     
     try {
       
-      const messages = await Message.find({
-       
-          user:userId, // restrict to logged-in user's messages
-          content: { $regex: query, $options: 'i' } , // case-insensitive search
+      // const messages = await Message.find({
+      //   user:userId, // restrict to logged-in user's messages
+      //   content: { $regex: query, $options: 'i' } , // case-insensitive search
      
-      });
+      // });
+      // Step 1: Get all user messages that match the search query
+const messages = await Message.find({
+  user: userId,
+  content: { $regex: query, $options: 'i' }
+});
+
+// Step 2: Get all messages in the same sessions
+const chatSessionIds = messages.map(msg => msg.chatSessionId);
+
+// Use Set to remove duplicates, then query all messages in those sessions
+const allMessagesInSessions = await Message.find({
+  chatSessionId: { $in: [...new Set(chatSessionIds)] }
+});
+  console.log( "all message",allMessagesInSessions);
   
-      console.log(messages);
+
+  
+      // console.log(messages);
+      // console.log("query msg",queryMsg);
       if (messages?.length === 0 || messages == []) {
         return res.status(400).json({message: 'No matched data found',});
       }
-      return res.status(200).json({message: 'Matched data found', searchData:messages});
+      return res.status(200).json({message: 'Matched data found', searchData: allMessagesInSessions,});
     } catch (err) {
        console.error('Search Error:', err.message);
       return res.status(500).json({ message: 'Server error' });

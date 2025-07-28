@@ -10,10 +10,13 @@ const openai = new OpenAI({
 });
 
 exports.sendMessage = async (req, res) => {
-  const { content, title, newStatus } = req.body;
+  const { content, title, newStatus, sessionID} = req.body;
   const userId = req.user.id;
   console.log(newStatus);
+  console.log("session id",sessionID);
+  
 
+  
 
   try {
     let chat;
@@ -21,10 +24,18 @@ exports.sendMessage = async (req, res) => {
       // const title=  title.length > 50 ? title.slice(0, 50) + '...' : title
       chat = await Chat.create({ user: userId, title, messages: [] });
     } else {
-      chat = await Chat.findOne({ user: userId }).sort({ createdAt: -1 });;
-      if (!chat) {
-        // const title=  title.length > 50 ? title.slice(0, 50) + '...' : title
-        chat = await Chat.create({ user: userId, title, messages: [] });
+      if(sessionID){
+        chat = await Chat.findOne({ user: userId, _id:sessionID})
+        console.log("chat result", chat);
+        
+      }else{
+        console.log("no session id");
+        
+        chat = await Chat.findOne({ user: userId }).sort({ createdAt: -1 });
+        if (!chat) {
+          // const title=  title.length > 50 ? title.slice(0, 50) + '...' : title
+          chat = await Chat.create({ user: userId, title, messages: [] });
+        }
       }
     }
 
