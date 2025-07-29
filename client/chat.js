@@ -3,7 +3,7 @@ async function getUserDetails() {
   try {
     const res = await fetch(`${URL}/api/auth/dashboard`, {
       method: 'GET',
-      credentials: 'include', // important to send cookies
+      credentials: 'include',
     });
     console.log(res);
     if (res.ok) {
@@ -25,7 +25,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   const userLogo = document.getElementById('userLogo');
   let userDetails = await getUserDetails()
   const renderedChatIds = new Set();
-  const userName = userDetails.name; // e.g., "labade"
+  const userName = userDetails.name;
   const initials = userName.slice(0, 2).toUpperCase(); // "la" → "LA"
   userLogo.innerText = initials;
   console.log(userDetails.name);
@@ -34,8 +34,6 @@ document.addEventListener('DOMContentLoaded', async () => {
   const newChatBtn = document.getElementById('newChatBtn');
   const chatHistoryBtn = document.getElementById('chatHistoryBtn');
   const logoutBtn = document.getElementById('logoutBtn');
-  // const DelBtn = document.getElementById('logoutBtn');
-  const spinner = document.getElementById('spinner');
   const searchContainer = document.getElementById('searchContainer');
   const searchInput = document.getElementById('search');
   const searchBtn = document.getElementById('searchBtn');
@@ -119,8 +117,9 @@ document.addEventListener('DOMContentLoaded', async () => {
       // Hide all tooltips if sidebar is open
       document.querySelectorAll('.tooltip').forEach(t => t.style.display = 'none');
 
-      // Hide all chathistory if sidebar is open
+      // show all chathistory if sidebar is open
       chatHistory.style.display = "flex"
+      // show all search if sidebar is open
       searchContainer.style.display="flex"
     }
   });
@@ -148,6 +147,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   newChatBtn.addEventListener('click', () => {
     newChat = true;
     chatBox.innerHTML = ""
+    searchResults.innerHTML = ""
     // remove delete btn if present
     delHis.style.display = "none";
     const newMsg = document.createElement('div');
@@ -198,16 +198,11 @@ document.addEventListener('DOMContentLoaded', async () => {
               <div class="message-content">${msg.content}</div>
             `;
             searchResults.appendChild(box);
-            // chatBox.appendChild(box);
+           
           });
         }
         if (!res.ok) {
-          console.log(res);
           console.log("Something went wrong");
-          console.log(result?.message);
-          console.log(result);
-  
-  
           const errorMsg = result?.message
           console.log(errorMsg);
   
@@ -219,17 +214,17 @@ document.addEventListener('DOMContentLoaded', async () => {
             setTimeout(() => {
               window.location.href = "login.html"
             }, 3000);
+          }else{
+            throw new Error(result.message || 'Something went wrong');
           }
-          // throw new Error(result.message || 'Something went wrong');
         }
-  
       } catch (err) {
         const errorMsg = err.response.data.message || 'Something went wrong retry'
         messageBox.className = "message error"
         messageBox.innerText = errorMsg
   
       } finally {
-         searchBtn.classList.remove("disabled");
+        searchBtn.classList.remove("disabled");
       }
       setTimeout(() => {
         messageBox.textContent = "";
@@ -351,6 +346,7 @@ document.addEventListener('DOMContentLoaded', async () => {
       let isNewChat = newChat === true
       console.log("is new chat", isNewChat);
       userInput.value = '';
+      searchResults.innerHTML = ""
 
       try {
         chatForm.classList.add("disabled");
@@ -412,6 +408,8 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     msgDiv.addEventListener('click', async () => {
       chatBox.innerHTML = ""
+      searchResults.innerHTML = ""
+      delHis.style.display = "none";
       newChat = false;
       console.log("id",id);
       sessionID=id 
