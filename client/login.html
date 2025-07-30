@@ -14,7 +14,12 @@
     <form id="login-form">
       <input type="email" id="email" placeholder="Email" required />
       <input type="password" id="password" placeholder="Password" required />
-      <button type="submit">Login</button>
+      <button type="submit">
+        <div id="login-text">
+          Login
+        </div>
+        <div id="login-spinner" class="spinner" style="display: none;"></div>
+      </button>
       <p>Don't have an account? <a href="index.html">Register</a></p>
     </form>
   </div>

@@ -2,6 +2,10 @@
 document.addEventListener('DOMContentLoaded', () => {
   const loginForm = document.getElementById('login-form');
   const registerForm = document.getElementById('register-form');
+  const registerSpinner = document.getElementById('register-spinner');
+  const registerText = document.getElementById('register-text');
+  const loginSpinner = document.getElementById('login-spinner');
+  const loginText = document.getElementById('login-text');
   const params = new URLSearchParams(window.location.search);
   const URL = "http://localhost:4000"
   const msg = params.get('message');
@@ -25,7 +29,8 @@ document.addEventListener('DOMContentLoaded', () => {
       try {
         // clear error message before registering again if errror is ecounter 
         messageBox.innerHTML = ""
-        loginForm.classList.add("disabled");
+        loginSpinner.style.display="block"
+        loginText.innerHTML=""
         messageBox.removeAttribute("class");
         const res = await fetch(`${URL}/api/auth/login`, {
           method: 'POST',
@@ -55,7 +60,8 @@ document.addEventListener('DOMContentLoaded', () => {
         messageBox.className = "message error"
         messageBox.innerText = errorMsg
       }finally{
-        loginForm.classList.remove("disabled");
+        loginSpinner.style.display="none"
+        loginText.innerHTML="Login"
       }
       setTimeout(() => {
         messageBox.textContent = "";
@@ -75,9 +81,10 @@ document.addEventListener('DOMContentLoaded', () => {
       const messageBox = document.getElementById('messageBox')
       try {
         // clear error message before registering again if errror is ecounter 
+        registerSpinner.style.display="block"
+        registerText.innerHTML=""
         messageBox.innerHTML = ""
         messageBox.removeAttribute("class");
-        registerForm.classList.add("disabled");
         const res = await fetch(`${URL}/api/auth/register`, {
           method: 'POST',
           headers: {
@@ -101,14 +108,14 @@ document.addEventListener('DOMContentLoaded', () => {
           const errorMsg = data?.message
           messageBox.className = "message error"
           messageBox.innerText = errorMsg
-          // alert(data.message || 'Registration failed');
         }
       } catch (err) {
         const errorMsg = err.response.data.message
         messageBox.className = "message error"
         messageBox.innerText = errorMsg
       }finally{
-        registerForm.classList.remove("disabled");
+        registerSpinner.style.display="none"
+        registerText.innerHTML="Register"
       }
       setTimeout(() => {
         messageBox.textContent = "";

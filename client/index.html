@@ -16,7 +16,12 @@
       <input type="text" id="name" placeholder="Full Name" required />
       <input type="email" id="email" placeholder="Email" required />
       <input type="password" id="password" placeholder="Password" minlength="6" required />
-      <button type="submit">Register</button>
+      <button type="submit">
+        <div id="register-text">
+          Register
+        </div>
+        <div id="register-spinner" class="spinner" style="display: none;"></div>   
+      </button>
       <p>Already have an account? <a href="login.html">Login</a></p>
     </form>
   </div>
