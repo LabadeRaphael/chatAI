@@ -1,7 +1,6 @@
-const URL = 'http://localhost:4000'
 async function getUserDetails() {
   try {
-    const res = await fetch(`${URL}/api/auth/dashboard`, {
+    const res = await fetch(`/api/auth/dashboard`, {
       method: 'GET',
       credentials: 'include',
     });
@@ -25,8 +24,8 @@ document.addEventListener('DOMContentLoaded', async () => {
   const userLogo = document.getElementById('userLogo');
   let userDetails = await getUserDetails()
   const renderedChatIds = new Set();
-  const userName = userDetails.name;
-  const initials = userName.slice(0, 2).toUpperCase(); // "la" → "LA"
+  const userName = userDetails.name || "User";
+  const initials = userName.slice(0, 2).toUpperCase() || "US";
   userLogo.innerText = initials;
   console.log(userDetails.name);
   const sidebar = document.getElementById('sidebar');
@@ -73,10 +72,10 @@ document.addEventListener('DOMContentLoaded', async () => {
     tooltip.classList.add('tooltip');
     tooltip.innerText = item.textContent.trim();
     item.appendChild(tooltip);
-
     item.addEventListener('mouseenter', () => {
       if (sidebar.classList.contains('closed')) {
         tooltip.style.display = 'block';
+
       }
     });
 
@@ -109,7 +108,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     } else {
       isSidebarOpen = !shouldClose;
       chatHistory.style.display = "none"
-       searchContainer.style.display="none"
+      searchContainer.style.display = "none"
     }
 
     if (isSidebarOpen) {
@@ -120,7 +119,7 @@ document.addEventListener('DOMContentLoaded', async () => {
       // show all chathistory if sidebar is open
       chatHistory.style.display = "flex"
       // show all search if sidebar is open
-      searchContainer.style.display="flex"
+      searchContainer.style.display = "flex"
     }
   });
 
@@ -164,48 +163,61 @@ document.addEventListener('DOMContentLoaded', async () => {
   searchBtn.addEventListener('click', async (e) => {
     e.preventDefault()
     messageBox.innerHTML = ""
-     // remove delete btn if present
+    // remove delete btn if present
     delHis.style.display = "none";
     messageBox.removeAttribute("class");
     let searchTerm = searchInput.value.trim()
     console.log("searchTerm", searchTerm);
     searchResults.innerHTML = ""
-    if (!searchTerm)  {searchInput.focus()}
-    else{
+    if (!searchTerm) { searchInput.focus() }
+    else {
       try {
         searchBtn.classList.add("disabled");
-        const res = await fetch(`${URL}/api/auth/search?q=${encodeURIComponent(searchTerm)}`, {
+        const res = await fetch(`/api/auth/search?q=${encodeURIComponent(searchTerm)}`, {
           method: 'GET',
           credentials: 'include',
         });
         const result = await res.json()
         const searchData = result.searchData
-  
+
         if (res.ok) {
           chatBox.innerHTML = ""
           const successMsg = result?.message
           messageBox.className = "message success"
           messageBox.innerText = successMsg
           console.log(searchData);
-          
+
           searchData.forEach(msg => {
-            const box = document.createElement("div");
-            box.classList.add("message-box");
-            box.innerHTML = `
-              <div class="message-user">
-              ${msg.sender || 'You'}
-              </div>
-              <div class="message-content">${msg.content}</div>
-            `;
-            searchResults.appendChild(box);
-           
+          //   const box = document.createElement("div");
+          //   const userSearchMsg = document.createElement("div");
+          //   const botSearchMsg = document.createElement("div");
+          //   box.classList.add("message-box");
+          //   userSearchMsg.classList.add("us")
+          //   userSearchMsg.innerText=`${msg.sender || 'You'}`
+          //   box.innerHTML = `
+          //     <div class="message-user">
+          //     ${msg.sender || 'You'}
+          //     </div>
+          //     <div class="message-content">${msg.content}</div>
+          //   `;
+          //   searchResults.appendChild(box);
+          const SearchMsgBox = document.createElement("div");
+          const isUser = msg.sender === 'user';
+          SearchMsgBox.classList.add("message-box", isUser ? "user" : "bot");
+
+          SearchMsgBox.innerHTML = `
+          <div class="message-header">${msg.sender}</div>
+          <div class="message-content">${msg.content}</div>
+        `;
+
+          searchResults.appendChild(SearchMsgBox);
           });
         }
         if (!res.ok) {
           console.log("Something went wrong");
           const errorMsg = result?.message
           console.log(errorMsg);
-  
+
           messageBox.className = "message error" || 'Something went wrong retry'
           messageBox.innerText = errorMsg
           console.log(res.status);
@@ -214,15 +226,15 @@ document.addEventListener('DOMContentLoaded', async () => {
             setTimeout(() => {
               window.location.href = "login.html"
             }, 3000);
-          }else{
+          } else {
             throw new Error(result.message || 'Something went wrong');
           }
         }
       } catch (err) {
-        const errorMsg = err.response.data.message || 'Something went wrong retry'
+        const errorMsg = err?.response?.data?.message || err.message || 'Something went wrong retry'
         messageBox.className = "message error"
         messageBox.innerText = errorMsg
-  
+
       } finally {
         searchBtn.classList.remove("disabled");
       }
@@ -237,7 +249,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     chatBox.innerHTML = ""
     chatHistoryBtn.classList.add("disabled");
     try {
-      const res = await fetch(`${URL}/api/chat/history`, {
+      const res = await fetch(`/api/chat/history`, {
         method: 'GET',
         credentials: 'include'
       });
@@ -262,7 +274,7 @@ document.addEventListener('DOMContentLoaded', async () => {
       const errorMsg = err.message || 'Something went wrong retry'
       messageBox.className = "message error"
       messageBox.innerText = errorMsg
-    }finally{
+    } finally {
       chatHistoryBtn.classList.remove("disabled");
     }
     setTimeout(() => {
@@ -277,7 +289,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   })
   confirmHisDel.addEventListener("click", async () => {
     try {
-      const res = await fetch(`${URL}/api/chat/history/delete`, {
+      const res = await fetch(`/api/chat/history/delete`, {
         method: 'DELETE',
         credentials: 'include'
       });
@@ -319,7 +331,7 @@ document.addEventListener('DOMContentLoaded', async () => {
       modal.style.display = 'flex';
     });
     confirmLogout.addEventListener('click', async () => {
-      await fetch(`${URL}/api/auth/logout`, {
+      await fetch(`/api/auth/logout`, {
         method: 'POST',
         credentials: 'include'
       });
@@ -334,7 +346,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     });
   }
   if (chatForm) {
-    let chatMessages = [];
+    // let chatMessages = [];
     chatForm.addEventListener('submit', async (e) => {
       e.preventDefault();
       const message = userInput.value.trim();
@@ -350,11 +362,11 @@ document.addEventListener('DOMContentLoaded', async () => {
 
       try {
         chatForm.classList.add("disabled");
-        const res = await fetch(`${URL}/api/chat`, {
+        const res = await fetch(`/api/chat`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           credentials: 'include',
-          body: JSON.stringify({ content: message, title: message, newStatus: isNewChat, sessionID:sessionID?sessionID:null })
+          body: JSON.stringify({ content: message, title: message, newStatus: isNewChat, sessionID: sessionID ? sessionID : null })
         });
 
         const data = await res.json();
@@ -411,12 +423,12 @@ document.addEventListener('DOMContentLoaded', async () => {
       searchResults.innerHTML = ""
       delHis.style.display = "none";
       newChat = false;
-      console.log("id",id);
-      sessionID=id 
-      
-      
+      console.log("id", id);
+      sessionID = id
+
+
       try {
-        const res = await fetch(`${URL}/api/chat/history/${id}`, {
+        const res = await fetch(`/api/chat/history/${id}`, {
           method: 'GET',
           credentials: 'include',
         });
@@ -453,7 +465,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
       confirmDel.addEventListener('click', async () => {
         try {
-          let res = await fetch(`${URL}/api/chat/delete/${id}`, {
+          let res = await fetch(`/api/chat/delete/${id}`, {
             method: 'DELETE',
             credentials: 'include'
           });
@@ -494,33 +506,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     chatBox.scrollTop = chatBox.scrollHeight;
   }
 
-  async function fetchHistory() {
-    const localData = localStorage.getItem("chatHistory");
 
-    if (localData) {
-      chatMessages = JSON.parse(localData);
-      chatMessages.forEach(item => appendMessage(item.sender, item.message));
-    } else {
-      // fallback to DB
-      try {
-        const res = await fetch(`${URL}/api/chat/history`, {
-          method: 'GET',
-          credentials: 'include'
-        });
-        const data = await res.json();
-        console.log(data);
-
-        if (data?.history) {
-          chatMessages = data.history;
-          localStorage.setItem("chatHistory", JSON.stringify(chatMessages));
-          chatMessages.forEach(item => appendMessage(item.sender, item.content));
-          // chatHistory.appendChild(item.sender);
-        }
-      } catch (err) {
-        console.log("Error fetching chat history from DB", err);
-      }
-    }
-  }
 
   async function fetchChatTitle() {
     let rawTitle = localStorage.getItem("chatTitles")
@@ -537,7 +523,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
 
     try {
-      const res = await fetch(`${URL}/api/chat/title`, {
+      const res = await fetch(`/api/chat/title`, {
         method: 'GET',
         credentials: 'include'
       });

@@ -118,8 +118,8 @@ body {
   position: fixed;
   height: 100%;
   z-index: 10;
-  scroll-behavior: smooth;
-  overflow-y: scroll;
+  /* scroll-behavior: smooth;
+  overflow-y: scroll; */
 
 }
 
@@ -244,7 +244,6 @@ body {
 .message-options {
   font-weight: bold;
   font-size: 1.2rem;
-  /* color: var(--chocolate); */
 }
 
 .sidebar-item i {
@@ -284,10 +283,10 @@ body {
   border-radius: 4px;
   font-size: 0.8rem;
   left: 60px;
-  /* Position to the right of the icon */
+  width: 3rem;
   transform: translateY(-50%);
   white-space: nowrap;
-  z-index: 12;
+  z-index: 100;
 }
 
 .message-options {
@@ -442,6 +441,7 @@ body {
   margin-left: 0.2rem;
 }
 
+
 .chat-box .user {
   background-color: var(--cream);
   border: 1px solid var(--chocolate);
@@ -494,27 +494,45 @@ body {
   gap: 12px;
   padding-right: 5px;
 }
-
 .message-box {
-  border: 1px solid var(--chocolate);
-  background: var(--cream);
-  font-weight: 500;
-  width: fit-content;
-  padding: 0.5rem 0.4rem;
+  max-width: 70%;
+  margin: 10px 0 0 1.2rem;
+  padding: 10px;
   border-radius: 12px;
-  margin: 0.2rem 0 0 1rem;
+  word-wrap: break-word;
+  display: flex;
+    font-weight: 500;
+  font-family: 'Segoe UI', sans-serif;
+  flex-direction: column;
+
 }
-.message-user {
+
+.message-box.user {
+  background-color: #dcf8c6; /* Light green for user */
+  align-self: flex-end;
+  text-align: right;
+  background-color: var(--cream);
+  border: 1px solid var(--chocolate);
+}
+
+.message-box.bot {
+  align-self: flex-start;
+  text-align: left;
+  background-color: var(--chocolate);
+  color: var(--cream);
+  margin-left: 1.2rem;
+}
+
+.message-header {
+  font-size: 0.95rem;
+  color: red;
   margin-bottom: 4px;
-  color: #2f1b10;
-  margin-left: 0.2rem;
 }
 
 .message-content {
-  margin-left: 0.2rem;
-  border-radius: 2px;
-  margin-left: 0.2rem;
+  font-size: 0.95rem;
 }
+
 
 /* message displayer */
 .message {

@@ -29,8 +29,8 @@ document.addEventListener('DOMContentLoaded', () => {
       try {
         // clear error message before registering again if errror is ecounter 
         messageBox.innerHTML = ""
-        loginSpinner.style.display="block"
-        loginText.innerHTML=""
+        loginSpinner.style.display = "block"
+        loginText.innerHTML = ""
         messageBox.removeAttribute("class");
         const res = await fetch(`${URL}/api/auth/login`, {
           method: 'POST',
@@ -59,9 +59,9 @@ document.addEventListener('DOMContentLoaded', () => {
         const errorMsg = err.response.data.message || 'Error logging in retry'
         messageBox.className = "message error"
         messageBox.innerText = errorMsg
-      }finally{
-        loginSpinner.style.display="none"
-        loginText.innerHTML="Login"
+      } finally {
+        loginSpinner.style.display = "none"
+        loginText.innerHTML = "Login"
       }
       setTimeout(() => {
         messageBox.textContent = "";
@@ -81,8 +81,8 @@ document.addEventListener('DOMContentLoaded', () => {
       const messageBox = document.getElementById('messageBox')
       try {
         // clear error message before registering again if errror is ecounter 
-        registerSpinner.style.display="block"
-        registerText.innerHTML=""
+        registerSpinner.style.display = "block"
+        registerText.innerHTML = ""
         messageBox.innerHTML = ""
         messageBox.removeAttribute("class");
         const res = await fetch(`${URL}/api/auth/register`, {
@@ -113,9 +113,9 @@ document.addEventListener('DOMContentLoaded', () => {
         const errorMsg = err.response.data.message
         messageBox.className = "message error"
         messageBox.innerText = errorMsg
-      }finally{
-        registerSpinner.style.display="none"
-        registerText.innerHTML="Register"
+      } finally {
+        registerSpinner.style.display = "none"
+        registerText.innerHTML = "Register"
       }
       setTimeout(() => {
         messageBox.textContent = "";
