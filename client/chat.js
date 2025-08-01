@@ -75,7 +75,6 @@ document.addEventListener('DOMContentLoaded', async () => {
     item.addEventListener('mouseenter', () => {
       if (sidebar.classList.contains('closed')) {
         tooltip.style.display = 'block';
-
       }
     });
 
@@ -188,29 +187,29 @@ document.addEventListener('DOMContentLoaded', async () => {
           console.log(searchData);
 
           searchData.forEach(msg => {
-          //   const box = document.createElement("div");
-          //   const userSearchMsg = document.createElement("div");
-          //   const botSearchMsg = document.createElement("div");
-          //   box.classList.add("message-box");
-          //   userSearchMsg.classList.add("us")
-          //   userSearchMsg.innerText=`${msg.sender || 'You'}`
-          //   box.innerHTML = `
-          //     <div class="message-user">
-          //     ${msg.sender || 'You'}
-          //     </div>
-          //     <div class="message-content">${msg.content}</div>
-          //   `;
-          //   searchResults.appendChild(box);
-          const SearchMsgBox = document.createElement("div");
-          const isUser = msg.sender === 'user';
-          SearchMsgBox.classList.add("message-box", isUser ? "user" : "bot");
+            //   const box = document.createElement("div");
+            //   const userSearchMsg = document.createElement("div");
+            //   const botSearchMsg = document.createElement("div");
+            //   box.classList.add("message-box");
+            //   userSearchMsg.classList.add("us")
+            //   userSearchMsg.innerText=`${msg.sender || 'You'}`
+            //   box.innerHTML = `
+            //     <div class="message-user">
+            //     ${msg.sender || 'You'}
+            //     </div>
+            //     <div class="message-content">${msg.content}</div>
+            //   `;
+            //   searchResults.appendChild(box);
+            const SearchMsgBox = document.createElement("div");
+            const isUser = msg.sender === 'user';
+            SearchMsgBox.classList.add("message-box", isUser ? "user" : "bot");
 
-          SearchMsgBox.innerHTML = `
+            SearchMsgBox.innerHTML = `
           <div class="message-header">${msg.sender}</div>
           <div class="message-content">${msg.content}</div>
         `;
 
-          searchResults.appendChild(SearchMsgBox);
+            searchResults.appendChild(SearchMsgBox);
           });
         }
         if (!res.ok) {
@@ -346,14 +345,12 @@ document.addEventListener('DOMContentLoaded', async () => {
     });
   }
   if (chatForm) {
-    // let chatMessages = [];
+    userInput.focus()
     chatForm.addEventListener('submit', async (e) => {
       e.preventDefault();
       const message = userInput.value.trim();
       if (!message) return;
       appendMessage('user', message);
-
-      // Finally add to chat history container
       console.log(newChat);
       let isNewChat = newChat === true
       console.log("is new chat", isNewChat);
@@ -377,7 +374,6 @@ document.addEventListener('DOMContentLoaded', async () => {
             let see = await fetchChatTitle(); // Fetch updated titles from server
             console.log(see);
           }
-
         }
       } catch (err) {
         appendMessage('bot', 'Error connecting to server.');
@@ -505,8 +501,6 @@ document.addEventListener('DOMContentLoaded', async () => {
     chatBox.appendChild(msgDiv);
     chatBox.scrollTop = chatBox.scrollHeight;
   }
-
-
 
   async function fetchChatTitle() {
     let rawTitle = localStorage.getItem("chatTitles")

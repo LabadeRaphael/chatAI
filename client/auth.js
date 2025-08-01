@@ -7,7 +7,6 @@ document.addEventListener('DOMContentLoaded', () => {
   const loginSpinner = document.getElementById('login-spinner');
   const loginText = document.getElementById('login-text');
   const params = new URLSearchParams(window.location.search);
-  const URL = "http://localhost:4000"
   const msg = params.get('message');
   if (msg === 'session_expired') {
     const errorMsg = "Your session has expired. Please log in again."
@@ -32,7 +31,7 @@ document.addEventListener('DOMContentLoaded', () => {
         loginSpinner.style.display = "block"
         loginText.innerHTML = ""
         messageBox.removeAttribute("class");
-        const res = await fetch(`${URL}/api/auth/login`, {
+        const res = await fetch(`/api/auth/login`, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json'
@@ -66,7 +65,6 @@ document.addEventListener('DOMContentLoaded', () => {
       setTimeout(() => {
         messageBox.textContent = "";
         messageBox.removeAttribute("class")
-
       }, 3000);
     });
   }
@@ -85,7 +83,7 @@ document.addEventListener('DOMContentLoaded', () => {
         registerText.innerHTML = ""
         messageBox.innerHTML = ""
         messageBox.removeAttribute("class");
-        const res = await fetch(`${URL}/api/auth/register`, {
+        const res = await fetch(`/api/auth/register`, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json'
@@ -103,6 +101,7 @@ document.addEventListener('DOMContentLoaded', () => {
           messageBox.innerText = successMsg
           setTimeout(() => {
             window.location.href = 'login.html';
+            localStorage.clear()
           }, 1500);
         } else {
           const errorMsg = data?.message
@@ -120,7 +119,6 @@ document.addEventListener('DOMContentLoaded', () => {
       setTimeout(() => {
         messageBox.textContent = "";
         messageBox.removeAttribute("class")
-
       }, 3000);
     });
   }
