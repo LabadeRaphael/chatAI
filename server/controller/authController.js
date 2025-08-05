@@ -54,6 +54,23 @@ exports.loginUser = async (req, res) => {
   }
 };
 
+// Forget-Password
+exports.forgotPassword = async (req, res) => {
+  const { email, newPassword } = req.body;
+  try {
+    const user = await User.findOne({ email });
+    if (!user) return res.status(400).json({ message: 'User not found kindly register.' });
+
+    const isSame = await user.matchPassword(newPassword);
+    if (isSame) return res.status(400).json({ message: 'New password must be different from the previous password.' });
+    user.password = newPassword;
+    await user.save();
+    return res.json({ message: 'Password Reset successful'});
+  } catch (err) {
+   return res.status(500).json({ message: 'Server failed', error: err.message });
+  }
+};
+
 // Logout
 exports.logoutUser = (req, res) => {
   res.clearCookie('token');

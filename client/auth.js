@@ -2,10 +2,12 @@
 document.addEventListener('DOMContentLoaded', () => {
   const loginForm = document.getElementById('login-form');
   const registerForm = document.getElementById('register-form');
+  const resetForm = document.getElementById('reset-form');
   const registerSpinner = document.getElementById('register-spinner');
   const registerText = document.getElementById('register-text');
   const loginSpinner = document.getElementById('login-spinner');
-  const loginText = document.getElementById('login-text');
+  const resetSpinner = document.getElementById('reset-spinner');
+  const resetText = document.getElementById('reset-text');
   const params = new URLSearchParams(window.location.search);
   const msg = params.get('message');
   if (msg === 'session_expired') {
@@ -115,6 +117,55 @@ document.addEventListener('DOMContentLoaded', () => {
       } finally {
         registerSpinner.style.display = "none"
         registerText.innerHTML = "Register"
+      }
+      setTimeout(() => {
+        messageBox.textContent = "";
+        messageBox.removeAttribute("class")
+      }, 3000);
+    });
+  }
+  // forget-password logic
+    if (resetForm) {
+    resetForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const email = document.getElementById('email').value;
+      const newPassword = document.getElementById('new-password').value;
+
+      try {
+        // clear error message before registering again if errror is ecounter 
+        messageBox.innerHTML = ""
+        resetSpinner.style.display = "block"
+        resetText.innerHTML = ""
+        messageBox.removeAttribute("class");
+        const res = await fetch(`/api/auth/forgot-password`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          credentials: 'include',
+          body: JSON.stringify({ email, newPassword})
+        });
+
+        const data = await res.json();
+        if (res.ok) {
+          const successMsg = data?.message
+          messageBox.className = "message success"
+          messageBox.innerText = successMsg
+          setTimeout(() => {
+            window.location.href = 'login.html';
+          }, 1500);
+        } else {
+          const errorMsg = data?.message || 'Reset Password failed retry'
+          messageBox.className = "message error"
+          messageBox.innerText = errorMsg
+        }
+      } catch (err) {
+        const errorMsg = err.response.data.message || 'Error resetting Password in retry'
+        messageBox.className = "message error"
+        messageBox.innerText = errorMsg
+      } finally {
+        resetSpinner.style.display = "none"
+        resetText.innerHTML = "Reset Password"
       }
       setTimeout(() => {
         messageBox.textContent = "";
