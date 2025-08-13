@@ -2,10 +2,12 @@
 const express = require('express');
 const router = express.Router();
 const chatController = require('../controller/chatController');
+const groqController = require('../controller/groq');
 const authMiddleware = require('../middleware/authMiddleware');
 
 // Protected chat route
 router.post('/', authMiddleware, chatController.sendMessage);
+// router.post('/', authMiddleware, groqController.sendMessage);
 router.get('/history', authMiddleware, chatController.getMessages);
 router.get('/title', authMiddleware, chatController.getChatTitles);
 router.get('/history/:id', authMiddleware, chatController.getChatSession);

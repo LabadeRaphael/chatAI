@@ -463,13 +463,6 @@ body {
   justify-content: center;
 }
 
-/* .sidebar-scroll {
-  flex: 1;
-  overflow-y: auto;
-  overflow-x: hidden;
-} */
-
-
 /* search content */
 .search-result {
   max-height: 70vh;
@@ -548,8 +541,11 @@ body {
   .sidebar {
     transform: translateX(-250px);
     width: 210px;
-    /* Full width when open */
     margin-top: 110px;
+    padding-top: 0px;
+  }
+  .sidebar-logo {
+    margin-top: 10px;
   }
 
   .newChatCon {

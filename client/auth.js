@@ -4,6 +4,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const registerForm = document.getElementById('register-form');
   const resetForm = document.getElementById('reset-form');
   const registerSpinner = document.getElementById('register-spinner');
+  const loginText = document.getElementById('login-text');
   const registerText = document.getElementById('register-text');
   const loginSpinner = document.getElementById('login-spinner');
   const resetSpinner = document.getElementById('reset-spinner');
@@ -160,7 +161,7 @@ document.addEventListener('DOMContentLoaded', () => {
           messageBox.innerText = errorMsg
         }
       } catch (err) {
-        const errorMsg = err.response.data.message || 'Error resetting Password in retry'
+        const errorMsg = err.response?.data?.message || 'Error resetting password retry'
         messageBox.className = "message error"
         messageBox.innerText = errorMsg
       } finally {
